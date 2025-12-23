@@ -50,9 +50,13 @@ class AdminGuestController extends Controller
             ->with('invitation')
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
+        
+        // Get all invitations for dropdown if needed
+        $invitations = Invitation::find()->orderBy(['created_at' => SORT_DESC])->all();
 
         return $this->render('index', [
             'guests' => $guests,
+            'invitations' => $invitations,
         ]);
     }
 
