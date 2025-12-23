@@ -56,6 +56,10 @@ $config = [
                 'rsvp/submit' => 'rsvp/submit',
                 'rsvp/confirmation/<token:[\w\-]+>' => 'rsvp/confirmation',
                 
+                // Gallery routes
+                'gallery' => 'gallery/index',
+                'gallery/<id:\d+>' => 'gallery/index',
+                
                 // Admin routes
                 'admin-guest' => 'admin-guest/index',
                 'admin-guest/<action:\w+>' => 'admin-guest/<action>',
