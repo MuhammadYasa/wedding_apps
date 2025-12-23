@@ -42,16 +42,23 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             ['label' => 'Home', 'url' => ['/site/index']],
             ['label' => 'About', 'url' => ['/site/about']],
             ['label' => 'Contact', 'url' => ['/site/contact']],
-            Yii::$app->user->isGuest
-                ? ['label' => 'Login', 'url' => ['/site/login']]
-                : '<li class="nav-item">'
-                    . Html::beginForm(['/site/logout'])
-                    . Html::submitButton(
-                        'Logout (' . Yii::$app->user->identity->username . ')',
-                        ['class' => 'nav-link btn btn-link logout']
-                    )
-                    . Html::endForm()
-                    . '</li>'
+            Yii::$app->user->isGuest ? (
+                ['label' => 'Login', 'url' => ['/auth/login']]
+            ) : (
+                ['label' => 'Admin', 'items' => [
+                    ['label' => '<i class="bi bi-people-fill me-1"></i> Kelola Tamu', 'url' => ['/admin-guest/index'], 'encode' => false],
+                    ['label' => '<i class="bi bi-images me-1"></i> Kelola Gallery', 'url' => ['/admin-gallery/index'], 'encode' => false],
+                    '<div class="dropdown-divider"></div>',
+                    ['label' => '<i class="bi bi-box-arrow-right me-1"></i> Logout', 
+                     'url' => ['/auth/logout'],
+                     'linkOptions' => [
+                         'data-method' => 'post',
+                         'data-confirm' => 'Apakah Anda yakin ingin logout?',
+                     ],
+                     'encode' => false
+                    ],
+                ]]
+            )
         ]
     ]);
     NavBar::end();
