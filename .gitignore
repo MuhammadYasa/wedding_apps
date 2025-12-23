@@ -47,7 +47,12 @@ tests/_support/_generated
 # private documentation (personal notes, not for GitHub)
 STEP_BY_STEP.md
 COMMIT_DAY*.md
+COMMIT_GUIDE.md
 GIT_COMMIT_GUIDE.md
+VERIFICATION_REPORT.md
+NOTES_TAHAP*.md
+*_NOTES.md
+verify_data.php
 COMMIT_GUIDE.md
 TODO.md
 NOTES.md
