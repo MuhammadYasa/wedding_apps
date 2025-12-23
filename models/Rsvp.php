@@ -54,20 +54,25 @@ class Rsvp extends ActiveRecord
     public function rules()
     {
         return [
-            [['invitation_id', 'name', 'email'], 'required'],
+            [['invitation_id', 'name', 'email', 'attendance'], 'required', 'message' => '{attribute} wajib diisi'],
             [['invitation_id', 'guests_count', 'created_at'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['email'], 'string', 'max' => 191],
-            ['email', 'email'],
+            ['email', 'email', 'message' => 'Format email tidak valid'],
             [['phone'], 'string', 'max' => 50],
             [['message'], 'string'],
             [['attendance'], 'in', 'range' => [self::ATTENDANCE_ATTENDING, self::ATTENDANCE_NOT_ATTENDING]],
             [['guests_count'], 'integer', 'min' => 1, 'max' => 10],
+            [['guests_count'], 'required', 'when' => function($model) {
+                return $model->attendance === self::ATTENDANCE_ATTENDING;
+            }, 'whenClient' => "function (attribute, value) {
+                return $('input[name=\"Rsvp[attendance]\"]:checked').val() === 'attending';
+            }", 'message' => 'Jumlah tamu wajib diisi jika Anda hadir'],
             [['token'], 'string', 'max' => 128],
             [['invitation_id'], 'exist', 'skipOnError' => true, 'targetClass' => Invitation::class, 'targetAttribute' => ['invitation_id' => 'id']],
             // Unique constraint: satu email hanya bisa RSVP sekali per invitation
             [['email'], 'unique', 'targetAttribute' => ['invitation_id', 'email'], 
-                'message' => 'Anda sudah melakukan RSVP sebelumnya.'],
+                'message' => 'Anda sudah melakukan RSVP sebelumnya untuk undangan ini.'],
         ];
     }
 
