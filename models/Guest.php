@@ -43,7 +43,8 @@ class Guest extends ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'updatedAtAttribute' => false,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
             ],
             [
                 'class' => SluggableBehavior::class,
@@ -61,7 +62,7 @@ class Guest extends ActiveRecord
     public function rules()
     {
         return [
-            [['invitation_id', 'name'], 'required'],
+            [['invitation_id', 'name', 'phone'], 'required', 'message' => '{attribute} wajib diisi'],
             [['invitation_id', 'token_created_at', 'viewed_at', 'created_at'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['email'], 'string', 'max' => 191],
