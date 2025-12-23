@@ -7,6 +7,7 @@ $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
+    'timeZone' => 'Asia/Jakarta',
     'aliases' => [
         '@bower' => '@vendor/yidas/yii2-bower-asset/bower',
         '@npm'   => '@vendor/npm-asset',
@@ -46,6 +47,19 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                // Auth routes (must be before generic rules)
+                'auth/login' => 'auth/login',
+                'auth/logout' => 'auth/logout',
+                
+                // Admin routes
+                'admin-guest' => 'admin-guest/index',
+                'admin-guest/<action:\w+>' => 'admin-guest/<action>',
+                'admin-guest/<action:\w+>/<id:\d+>' => 'admin-guest/<action>',
+                
+                'admin-gallery' => 'admin-gallery/index',
+                'admin-gallery/<action:\w+>' => 'admin-gallery/<action>',
+                'admin-gallery/<action:\w+>/<id:\d+>' => 'admin-gallery/<action>',
+                
                 // Invitation friendly URLs
                 'invitation/<slug:[\w\-]+>' => 'invitation/view',
                 
