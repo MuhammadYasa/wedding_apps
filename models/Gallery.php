@@ -53,7 +53,7 @@ class Gallery extends ActiveRecord
             [['invitation_id', 'sort_order', 'created_at'], 'integer'],
             [['filename', 'caption'], 'string', 'max' => 255],
             [['invitation_id'], 'exist', 'skipOnError' => true, 'targetClass' => Invitation::class, 'targetAttribute' => ['invitation_id' => 'id']],
-            [['imageFile'], 'file', 'extensions' => 'png, jpg, jpeg', 'maxSize' => 5120000],
+            [['imageFile'], 'file', 'extensions' => 'png, jpg, jpeg', 'maxSize' => 5120000, 'maxFiles' => 20],
         ];
     }
 
