@@ -2,114 +2,109 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 
-/* @var $this yii\web\View */
-/* @var $invitation app\models\Invitation */
-/* @var $guests app\models\Guest[] */
+/** @var $this yii\web\View */
+/** @var $guests app\models\Guest[] */
+/** @var $invitations app\models\Invitation[] */
 
-$this->title = 'Guests for: ' . $invitation->title;
+$this->title = 'Kelola Tamu';
+$this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="admin-guest-index container">
-    <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('Export CSV', ['export', 'invitation_id' => $invitation->id], ['class' => 'btn btn-outline-secondary']) ?>
-    </p>
+<div class="admin-guest-index">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-people-fill me-2"></i><?= Html::encode($this->title) ?></h1>
+        <?= Html::a('<i class="bi bi-plus-circle me-1"></i> Tambah Tamu', ['create'], ['class' => 'btn btn-success']) ?>
+    </div>
 
-    <h3>Generate Guests (paste list: one per line as "Name, email" or just "Name")</h3>
-    <form method="post" action="<?= Url::to(['generate']) ?>">
-        <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
-        <?= Html::hiddenInput('invitation_id', $invitation->id) ?>
-        <div class="form-group">
-            <textarea name="guest_lines" class="form-control" rows="6" placeholder="John Doe, john@example.com"></textarea>
+    <div class="card">
+        <div class="card-body">
+            <?php if (empty($guests)): ?>
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                    <p class="mt-3">Belum ada data tamu</p>
+                    <?= Html::a('Tambah Tamu Pertama', ['create'], ['class' => 'btn btn-primary']) ?>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>Telepon</th>
+                                <th>Undangan</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($guests as $index => $guest): ?>
+                                <tr>
+                                    <td><?= $index + 1 ?></td>
+                                    <td>
+                                        <i class="bi bi-person-fill me-1"></i>
+                                        <?= Html::encode($guest->name) ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($guest->email): ?>
+                                            <i class="bi bi-envelope me-1"></i>
+                                            <?= Html::encode($guest->email) ?>
+                                        <?php else: ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($guest->phone): ?>
+                                            <i class="bi bi-telephone me-1"></i>
+                                            <?= Html::encode($guest->phone) ?>
+                                        <?php else: ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($guest->invitation): ?>
+                                            <span class="badge bg-info">
+                                                <?= Html::encode($guest->invitation->bride_name . ' & ' . $guest->invitation->groom_name) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <?= Html::a('<i class="bi bi-eye"></i>', ['view', 'id' => $guest->id], [
+                                                'class' => 'btn btn-info',
+                                                'title' => 'Lihat Detail'
+                                            ]) ?>
+                                            <?= Html::a('<i class="bi bi-pencil"></i>', ['update', 'id' => $guest->id], [
+                                                'class' => 'btn btn-warning',
+                                                'title' => 'Edit'
+                                            ]) ?>
+                                            <?= Html::a('<i class="bi bi-trash"></i>', ['delete', 'id' => $guest->id], [
+                                                'class' => 'btn btn-danger',
+                                                'title' => 'Hapus',
+                                                'data' => [
+                                                    'confirm' => 'Apakah Anda yakin ingin menghapus tamu ini?',
+                                                    'method' => 'post',
+                                                ],
+                                            ]) ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3">
+                    <p class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Total: <strong><?= count($guests) ?></strong> tamu
+                    </p>
+                </div>
+            <?php endif; ?>
         </div>
-        <button class="btn btn-primary" type="submit">Generate</button>
-    </form>
+    </div>
 
-    <hr>
-
-    <h3>Existing Guests</h3>
-    <table class="table table-sm">
-        <thead>
-            <tr><th>Name</th><th>Email</th><th>Link</th><th>Share</th><th>Viewed</th></tr>
-        </thead>
-        <tbody>
-        <?php foreach ($guests as $g): 
-            $link = Url::to(['invitation/view', 'slug' => $invitation->slug, 'token' => $g->token], true);
-        ?>
-            <tr>
-                <td><?= Html::encode($g->name) ?></td>
-                <td><?= Html::encode($g->email) ?></td>
-                <td>
-                    <input type="text" value="<?= Html::encode($link) ?>" readonly style="width:100%" id="link-<?= $g->id ?>">
-                </td>
-                <td>
-                    <!-- Share via WhatsApp (opens WA Web / App). Uses JS to URL-encode message -->
-                    <button class="btn btn-success btn-sm" onclick="openWhatsApp('<?= Html::encode($g->name) ?>','<?= Html::encode($link) ?>')">
-                        Share via WhatsApp
-                    </button>
-
-                    <button class="btn btn-outline-secondary btn-sm" onclick="copyText('link-<?= $g->id ?>')">Copy Link</button>
-
-                    <button class="btn btn-outline-primary btn-sm" onclick="copyMessage('<?= addslashes("Halo {$g->name},\nAnda diundang ke acara: {$invitation->title}\nBuka undangan: {$link}\nMohon konfirmasi kehadiran melalui link tersebut.\nTerima kasih.") ?>')">Copy Message</button>
-                </td>
-                <td><?= $g->viewed_at ? date('Y-m-d H:i', $g->viewed_at) : '-' ?></td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
 </div>
-
-<script>
-/**
- * Open WhatsApp share window with encoded message.
- * For mobile, this will open WhatsApp app if available; on desktop opens WhatsApp Web.
- * Message template can be adjusted here.
- */
-function openWhatsApp(name, link) {
-    // Build message (customize as needed)
-    var message = "Halo " + name + ",\n" +
-                  "Anda diundang ke acara: <?= addslashes($invitation->title) ?>\n" +
-                  "Buka undangan: " + link + "\n\n" +
-                  "Mohon konfirmasi kehadiran melalui link tersebut.\nTerima kasih.";
-    var encoded = encodeURIComponent(message);
-    // wa.me without number opens WA with prefilled text
-    var waUrl = "https://wa.me/?text=" + encoded;
-    // Open in new tab/window
-    window.open(waUrl, '_blank', 'noopener');
-}
-
-/**
- * Copy the value of an input element with given id
- */
-function copyText(id) {
-    var copyText = document.getElementById(id);
-    if (!copyText) return alert('Element not found');
-    copyText.select();
-    copyText.setSelectionRange(0, 99999);
-    try {
-        var ok = document.execCommand("copy");
-        if (ok) alert("Link copied to clipboard");
-        else alert("Copy failed. Please select and copy manually.");
-    } catch (e) {
-        alert("Copy not supported in this browser. Please select and copy manually.");
-    }
-}
-
-/**
- * Copy provided message string to clipboard
- */
-function copyMessage(text) {
-    var el = document.createElement('textarea');
-    el.value = text;
-    document.body.appendChild(el);
-    el.select();
-    try {
-        var ok = document.execCommand('copy');
-        if (ok) alert('Message copied to clipboard');
-        else alert('Copy failed. Please select and copy manually.');
-    } catch (e) {
-        alert('Copy not supported. Please select and copy manually.');
-    }
-    document.body.removeChild(el);
-}
-</script>
