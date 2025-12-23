@@ -17,6 +17,8 @@ class m251222_161749_create_guest_table extends Migration
             'invitation_id' => $this->integer()->notNull(),
             'name' => $this->string(255)->notNull(),
             'email' => $this->string(191)->null(),
+            'phone' => $this->string(50)->null(),
+            'whatsapp' => $this->string(50)->null(),
             'slug' => $this->string(191)->null(),
             'token' => $this->string(128)->notNull()->unique(),
             'token_created_at' => $this->integer()->null(),
@@ -26,6 +28,7 @@ class m251222_161749_create_guest_table extends Migration
 
         $this->addForeignKey('fk-guest-invitation', '{{%guest}}', 'invitation_id', '{{%invitation}}', 'id', 'CASCADE', 'RESTRICT');
         $this->createIndex('idx-guest-invitation-token', '{{%guest}}', ['invitation_id', 'token']);
+        $this->createIndex('idx-guest-token', '{{%guest}}', 'token');
     }
 
     public function safeDown()
