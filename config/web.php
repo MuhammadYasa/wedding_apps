@@ -51,6 +51,11 @@ $config = [
                 'auth/login' => 'auth/login',
                 'auth/logout' => 'auth/logout',
                 
+                // RSVP routes
+                'rsvp/<id:\d+>' => 'rsvp/index',
+                'rsvp/submit' => 'rsvp/submit',
+                'rsvp/confirmation/<token:[\w\-]+>' => 'rsvp/confirmation',
+                
                 // Admin routes
                 'admin-guest' => 'admin-guest/index',
                 'admin-guest/<action:\w+>' => 'admin-guest/<action>',
