@@ -14,6 +14,10 @@ $this->title = $invitation->title;
 // Register CSS
 $this->registerCssFile('@web/css/invitation.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 
+// Register Lightbox CSS & JS
+$this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerJsFile('https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+
 // Register countdown JS
 $this->registerJsFile('@web/js/countdown.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 
@@ -268,16 +272,22 @@ $this->registerJs("
         <div class="row g-3 mt-4">
             <?php foreach ($galleries as $gallery): ?>
             <div class="col-md-4 col-sm-6">
-                <div class="gallery-item">
-                    <img src="<?= $gallery->getImageUrl() ?>" 
-                         alt="<?= Html::encode($gallery->caption ?? '') ?>" 
-                         class="img-fluid">
-                    <?php if ($gallery->caption): ?>
-                    <div class="gallery-caption">
-                        <?= Html::encode($gallery->caption) ?>
+                <a href="<?= $gallery->getImageUrl() ?>" 
+                   data-lightbox="gallery" 
+                   data-title="<?= Html::encode($gallery->caption ?? '') ?>"
+                   class="gallery-link">
+                    <div class="gallery-item">
+                        <img src="<?= $gallery->getImageUrl() ?>" 
+                             alt="<?= Html::encode($gallery->caption ?? '') ?>" 
+                             class="img-fluid">
+                        <?php if ($gallery->caption): ?>
+                        <div class="gallery-caption">
+                            <i class="bi bi-zoom-in"></i>
+                            <?= Html::encode($gallery->caption) ?>
+                        </div>
+                        <?php endif; ?>
                     </div>
-                    <?php endif; ?>
-                </div>
+                </a>
             </div>
             <?php endforeach; ?>
         </div>
