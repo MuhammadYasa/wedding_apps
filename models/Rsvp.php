@@ -62,7 +62,7 @@ class Rsvp extends ActiveRecord
             [['phone'], 'string', 'max' => 50],
             [['message'], 'string'],
             [['attendance'], 'in', 'range' => [self::ATTENDANCE_ATTENDING, self::ATTENDANCE_NOT_ATTENDING]],
-            [['guests_count'], 'integer', 'min' => 1, 'max' => 10],
+            [['guests_count'], 'integer', 'min' => 1, 'max' => 2],
             [['guests_count'], 'required', 'when' => function($model) {
                 return $model->attendance === self::ATTENDANCE_ATTENDING;
             }, 'whenClient' => "function (attribute, value) {
