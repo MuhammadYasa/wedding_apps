@@ -46,8 +46,9 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 ['label' => 'Login', 'url' => ['/auth/login']]
             ) : (
                 ['label' => 'Admin', 'items' => [
-                    ['label' => '<i class="bi bi-people-fill me-1"></i> Kelola Tamu', 'url' => ['/admin-guest/index'], 'encode' => false],
+                    ['label' => '<i class="bi bi-people me-1"></i> Kelola Tamu', 'url' => ['/admin-guest/index'], 'encode' => false],
                     ['label' => '<i class="bi bi-images me-1"></i> Kelola Gallery', 'url' => ['/admin-gallery/index'], 'encode' => false],
+                    ['label' => '<i class="bi bi-calendar-check me-1"></i> Kelola RSVP', 'url' => ['/admin-rsvp/index'], 'encode' => false],
                     '<div class="dropdown-divider"></div>',
                     ['label' => '<i class="bi bi-box-arrow-right me-1"></i> Logout', 
                      'url' => ['/auth/logout'],
