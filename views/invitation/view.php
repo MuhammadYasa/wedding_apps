@@ -710,29 +710,8 @@ $this->registerJs("
             <h4><?= Html::encode($invitation->bride_name) ?> & <?= Html::encode($invitation->groom_name) ?></h4>
         </div>
         
-        <div class="footer-share mt-4">
-            <p>Bagikan undangan ini:</p>
-            <div class="share-buttons">
-                <a href="<?= $invitation->getWhatsAppUrl($guest ? $guest->name : null) ?>" 
-                   target="_blank" 
-                   class="btn btn-sm btn-success">
-                    <i class="bi bi-whatsapp"></i> WhatsApp
-                </a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode($invitation->getUrl()) ?>" 
-                   target="_blank" 
-                   class="btn btn-sm btn-primary">
-                    <i class="bi bi-facebook"></i> Facebook
-                </a>
-                <a href="https://twitter.com/intent/tweet?url=<?= urlencode($invitation->getUrl()) ?>&text=<?= urlencode($invitation->title) ?>" 
-                   target="_blank" 
-                   class="btn btn-sm btn-info text-white">
-                    <i class="bi bi-twitter"></i> Twitter
-                </a>
-            </div>
-        </div>
-        
         <hr class="my-4">
-        <p class="small text-muted">
+        <p class="small" style="color: white;">
             &copy; <?= date('Y') ?> Wedding Invitation App
         </p>
     </div>
