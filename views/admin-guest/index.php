@@ -73,6 +73,34 @@ $this->params['breadcrumbs'][] = $this->title;
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
+                                            <?php
+                                            // Generate WhatsApp invitation link
+                                            if ($guest->invitation) {
+                                                $invitationUrl = Url::to([
+                                                    '/invitation/view',
+                                                    'slug' => $guest->invitation->slug,
+                                                    'to' => $guest->name
+                                                ], true); // true for absolute URL
+                                                
+                                                $whatsappMessage = "Assalamualaikum Warahmatullahi Wabarakatuh\n\n";
+                                                $whatsappMessage .= "Kepada Yth. Bapak/Ibu/Saudara/i\n";
+                                                $whatsappMessage .= "*" . $guest->name . "*\n\n";
+                                                $whatsappMessage .= "Tanpa mengurangi rasa hormat, perkenankan kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami.\n\n";
+                                                $whatsappMessage .= "Berikut link undangan digital kami:\n";
+                                                $whatsappMessage .= $invitationUrl . "\n\n";
+                                                $whatsappMessage .= "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu.\n\n";
+                                                $whatsappMessage .= "Terima kasih 🙏";
+                                                
+                                                $whatsappUrl = 'https://wa.me/' . preg_replace('/[^0-9]/', '', $guest->phone ?: '') . '?text=' . urlencode($whatsappMessage);
+                                            }
+                                            ?>
+                                            
+                                            <?php if ($guest->invitation && $guest->phone): ?>
+                                                <a href="<?= $whatsappUrl ?>" target="_blank" class="btn btn-success" title="Share via WhatsApp">
+                                                    <i class="bi bi-whatsapp"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                            
                                             <?= Html::a('<i class="bi bi-eye"></i>', ['view', 'id' => $guest->id], [
                                                 'class' => 'btn btn-info',
                                                 'title' => 'Lihat Detail'
