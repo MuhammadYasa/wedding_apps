@@ -507,6 +507,198 @@ $this->registerJs("
 </section>
 <?php endif; ?>
 
+<!-- Live Chat Section -->
+<section class="chat-section" id="chat">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2>Live Chat</h2>
+            <div class="divider-heart">
+                <i class="bi bi-chat-heart-fill"></i>
+            </div>
+            <p class="text-muted">Ngobrol santai dengan tamu undangan lainnya</p>
+        </div>
+        
+        <div class="row justify-content-center mt-4">
+            <div class="col-lg-8">
+                <div class="chat-container card border-0 shadow-lg">
+                    <!-- Chat Messages -->
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-chat-dots fs-1"></i>
+                            <p class="mt-2">Memuat percakapan...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Input -->
+                    <div class="chat-input-container">
+                        <?php if ($guest): ?>
+                            <form id="chatForm" class="d-flex gap-2">
+                                <input type="text" 
+                                       id="chatGuestName" 
+                                       class="form-control chat-name-readonly" 
+                                       value="<?= Html::encode($guestNameFromUrl) ?>"
+                                       readonly
+                                       tabindex="-1">
+                                <input type="text" 
+                                       id="chatMessage" 
+                                       class="form-control flex-grow-1" 
+                                       placeholder="Tulis pesan..."
+                                       required>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
+                            </form>
+                        <?php else: ?>
+                            <div class="alert alert-warning mb-0 text-center">
+                                <i class="bi bi-lock-fill me-2"></i>
+                                <strong>Live chat hanya tersedia untuk tamu yang memiliki link undangan.</strong>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Register Chat JS -->
+<?php
+$hasGuest = ($guest !== null);
+$this->registerJs("
+    const chatSlug = '" . $invitation->slug . "';
+    const hasGuest = " . ($hasGuest ? 'true' : 'false') . ";
+    let lastMessageId = 0;
+    let isScrolledToBottom = true;
+    
+    // Load messages
+    function loadMessages() {
+        $.ajax({
+            url: '" . Url::to(['invitation/get-messages', 'slug' => $invitation->slug]) . "',
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    displayMessages(response.messages);
+                }
+            }
+        });
+    }
+    
+    // Display messages
+    function displayMessages(messages) {
+        const container = $('#chatMessages');
+        const wasEmpty = container.find('.chat-message').length === 0;
+        
+        if (wasEmpty) {
+            container.empty();
+        }
+        
+        messages.forEach(function(msg) {
+            if (msg.id > lastMessageId) {
+                const messageHtml = `
+                    <div class=\"chat-message\" data-id=\"\${msg.id}\">
+                        <div class=\"message-header\">
+                            <strong class=\"guest-name\">\${escapeHtml(msg.guest_name)}</strong>
+                            <small class=\"text-muted\">\${msg.formatted_time}</small>
+                        </div>
+                        <div class=\"message-body\">\${escapeHtml(msg.message)}</div>
+                    </div>
+                `;
+                container.append(messageHtml);
+                lastMessageId = msg.id;
+            }
+        });
+        
+        if (isScrolledToBottom || wasEmpty) {
+            scrollToBottom();
+        }
+    }
+    
+    // Send message
+    $('#chatForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Check if user has guest access
+        if (!hasGuest) {
+            alert('Live chat hanya tersedia untuk tamu yang memiliki link undangan.');
+            return false;
+        }
+        
+        const guestName = $('#chatGuestName').val().trim();
+        const message = $('#chatMessage').val().trim();
+        
+        console.log('Sending message:', { guestName, message });
+        
+        if (!guestName || !message) {
+            alert('Nama dan pesan harus diisi');
+            return;
+        }
+        
+        const postData = {
+            guest_name: guestName,
+            message: message,
+            " . Yii::$app->request->csrfParam . ": '" . Yii::$app->request->csrfToken . "'
+        };
+        
+        console.log('POST data:', postData);
+        
+        $.ajax({
+            url: '" . Url::to(['invitation/send-message', 'slug' => $invitation->slug]) . "',
+            method: 'POST',
+            data: postData,
+            dataType: 'json',
+            success: function(response) {
+                console.log('Response:', response);
+                if (response.success) {
+                    $('#chatMessage').val('');
+                    displayMessages([response.message]);
+                } else {
+                    let errorMsg = response.error || 'Gagal mengirim pesan';
+                    if (response.validation_errors) {
+                        console.error('Validation errors:', response.validation_errors);
+                        errorMsg += '\\n' + JSON.stringify(response.validation_errors);
+                    }
+                    alert(errorMsg);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', {xhr, status, error});
+                console.error('Response text:', xhr.responseText);
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+            }
+        });
+    });
+    
+    // Scroll to bottom
+    function scrollToBottom() {
+        const container = $('#chatMessages');
+        container.scrollTop(container[0].scrollHeight);
+    }
+    
+    // Check if scrolled to bottom
+    $('#chatMessages').on('scroll', function() {
+        const elem = $(this)[0];
+        isScrolledToBottom = elem.scrollHeight - elem.scrollTop <= elem.clientHeight + 50;
+    });
+    
+    // Escape HTML
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '\"': '&quot;',
+            \"'\": '&#039;'
+        };
+        return text.replace(/[&<>\"']/g, function(m) { return map[m]; });
+    }
+    
+    // Initial load and auto-refresh
+    loadMessages();
+    setInterval(loadMessages, 3000); // Refresh every 3 seconds
+", \yii\web\View::POS_READY);
+?>
+
 <!-- Footer -->
 <footer class="invitation-footer">
     <div class="container text-center">

@@ -200,6 +200,103 @@ class InvitationController extends Controller
     }
 
     /**
+     * Get chat messages for invitation (AJAX)
+     * 
+     * @param string $slug
+     * @return array
+     */
+    public function actionGetMessages($slug)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $invitation = $this->findInvitationBySlug($slug);
+        
+        $messages = \app\models\Chat::find()
+            ->where(['invitation_id' => $invitation->id])
+            ->orderBy(['created_at' => SORT_ASC])
+            ->limit(100)
+            ->all();
+
+        $result = [];
+        foreach ($messages as $message) {
+            $result[] = [
+                'id' => $message->id,
+                'guest_name' => $message->guest_name,
+                'message' => $message->message,
+                'created_at' => $message->created_at,
+                'formatted_time' => $message->getFormattedTime(),
+            ];
+        }
+
+        return ['success' => true, 'messages' => $result];
+    }
+
+    /**
+     * Send chat message (AJAX)
+     * 
+     * @param string $slug
+     * @return array
+     */
+    public function actionSendMessage($slug)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $invitation = $this->findInvitationBySlug($slug);
+        
+        $guestName = Yii::$app->request->post('guest_name');
+        $message = Yii::$app->request->post('message');
+
+        // Log for debugging
+        Yii::info('Send Message Request - Guest: ' . $guestName . ', Message: ' . $message, __METHOD__);
+
+        if (empty($guestName) || empty($message)) {
+            return ['success' => false, 'error' => 'Nama dan pesan harus diisi'];
+        }
+
+        // Verify that guest exists in invitation
+        $guest = \app\models\Guest::findOne([
+            'name' => $guestName,
+            'invitation_id' => $invitation->id
+        ]);
+
+        if (!$guest) {
+            return ['success' => false, 'error' => 'Anda tidak memiliki akses untuk menggunakan live chat'];
+        }
+
+        $chat = new \app\models\Chat();
+        $chat->invitation_id = $invitation->id;
+        $chat->guest_name = $guestName;
+        $chat->message = $message;
+
+        if ($chat->save()) {
+            return [
+                'success' => true,
+                'message' => [
+                    'id' => $chat->id,
+                    'guest_name' => $chat->guest_name,
+                    'message' => $chat->message,
+                    'created_at' => $chat->created_at,
+                    'formatted_time' => $chat->getFormattedTime(),
+                ]
+            ];
+        }
+
+        // Return detailed validation errors
+        $errors = [];
+        foreach ($chat->getErrors() as $attribute => $attributeErrors) {
+            $errors[$attribute] = $attributeErrors;
+        }
+        
+        Yii::error('Chat save failed: ' . json_encode($errors), __METHOD__);
+        
+        return [
+            'success' => false, 
+            'error' => 'Gagal mengirim pesan',
+            'validation_errors' => $errors
+        ];
+    }
+
+    /**
      * Find invitation by slug
      * 
      * @param string $slug

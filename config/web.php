@@ -74,6 +74,8 @@ $config = [
                 'admin-gallery/<action:\w+>/<id:\d+>' => 'admin-gallery/<action>',
                 
                 // Invitation friendly URLs
+                'invitation/<slug:[\w\-]+>/send-message' => 'invitation/send-message',
+                'invitation/<slug:[\w\-]+>/get-messages' => 'invitation/get-messages',
                 'invitation/<slug:[\w\-]+>/rsvp' => 'invitation/rsvp',
                 'invitation/<slug:[\w\-]+>' => 'invitation/view',
                 
