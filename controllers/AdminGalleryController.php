@@ -45,25 +45,34 @@ class AdminGalleryController extends Controller
     /**
      * Lists all Gallery models for a specific invitation.
      * 
-     * @param int $invitation_id
+     * @param int|null $invitation_id
      * @return string
      */
-    public function actionIndex($invitation_id)
+    public function actionIndex($invitation_id = null)
     {
-        $invitation = $this->findInvitation($invitation_id);
+        $invitation = null;
+        $query = Gallery::find();
+        
+        if ($invitation_id !== null) {
+            $invitation = $this->findInvitation($invitation_id);
+            $query->where(['invitation_id' => $invitation_id]);
+        }
         
         $dataProvider = new ActiveDataProvider([
-            'query' => Gallery::find()
-                ->where(['invitation_id' => $invitation_id])
-                ->orderBy(['sort_order' => SORT_ASC, 'created_at' => SORT_DESC]),
+            'query' => $query->orderBy(['sort_order' => SORT_ASC, 'created_at' => SORT_DESC]),
             'pagination' => [
                 'pageSize' => 20,
             ],
         ]);
 
+        // Get invitations for filter dropdown
+        $invitations = Invitation::find()->orderBy(['title' => SORT_ASC])->all();
+
         return $this->render('index', [
             'invitation' => $invitation,
             'dataProvider' => $dataProvider,
+            'invitations' => $invitations,
+            'currentInvitation' => $invitation_id,
         ]);
     }
 
