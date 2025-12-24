@@ -34,10 +34,11 @@ class InvitationController extends Controller
      * 
      * @param string $slug Invitation slug (friendly URL)
      * @param string|null $token Guest token for personalized view
+     * @param string|null $to Guest name for WhatsApp shared invitation
      * @return string
      * @throws NotFoundHttpException
      */
-    public function actionView($slug, $token = null)
+    public function actionView($slug, $token = null, $to = null)
     {
         // Find invitation by slug
         $invitation = $this->findInvitationBySlug($slug);
@@ -47,18 +48,19 @@ class InvitationController extends Controller
             throw new NotFoundHttpException('Undangan tidak ditemukan atau sudah tidak aktif.');
         }
 
-        // Guest personalization (if token provided)
+        // Guest personalization (if token or 'to' parameter provided)
         $guest = null;
         if ($token) {
-            $guest = Guest::findOne([
-                'invitation_id' => $invitation->id,
-                'token' => $token
-            ]);
+            // Find guest by token
+            $guest = Guest::findOne(['token' => $token, 'invitation_id' => $invitation->id]);
+        } elseif ($to) {
+            // Find guest by name (from WhatsApp share link)
+            $guest = Guest::findOne(['name' => $to, 'invitation_id' => $invitation->id]);
+        }
 
-            // Mark invitation as viewed by this guest
-            if ($guest) {
-                $guest->markAsViewed();
-            }
+        // Mark invitation as viewed by this guest
+        if ($guest) {
+            $guest->markAsViewed();
         }
 
         // Load galleries
@@ -69,6 +71,21 @@ class InvitationController extends Controller
             ->orderBy(['created_at' => SORT_DESC])
             ->limit(10)
             ->all();
+
+        // Check if guest already submitted RSVP
+        $existingRsvp = null;
+        $guestNameFromUrl = null;
+        if ($guest) {
+            // Check by both name and email to be sure
+            $existingRsvp = \app\models\Rsvp::find()
+                ->where(['invitation_id' => $invitation->id])
+                ->andWhere(['or',
+                    ['email' => $guest->email],
+                    ['name' => $guest->name]
+                ])
+                ->one();
+            $guestNameFromUrl = $guest->name;
+        }
 
         // Set page title and meta tags
         $this->view->title = $invitation->title . ' - Wedding Invitation';
@@ -92,7 +109,94 @@ class InvitationController extends Controller
             'guest' => $guest,
             'galleries' => $galleries,
             'recentRsvps' => $recentRsvps,
+            'existingRsvp' => $existingRsvp,
+            'guestNameFromUrl' => $guestNameFromUrl,
         ]);
+    }
+
+    /**
+     * Handle RSVP form submission
+     * 
+     * @param string $slug Invitation slug
+     * @param string|null $token Guest token
+     * @param string|null $to Guest name
+     * @return \yii\web\Response|string
+     */
+    public function actionRsvp($slug, $token = null, $to = null)
+    {
+        $invitation = $this->findInvitationBySlug($slug);
+
+        // Get guest name from POST data (submitted form)
+        $postData = Yii::$app->request->post('Rsvp');
+        $guestNameFromForm = isset($postData['name']) ? $postData['name'] : null;
+
+        // Guest personalization - try multiple sources
+        $guest = null;
+        if ($token) {
+            $guest = Guest::findOne(['token' => $token, 'invitation_id' => $invitation->id]);
+        } elseif ($to) {
+            $guest = Guest::findOne(['name' => $to, 'invitation_id' => $invitation->id]);
+        } elseif ($guestNameFromForm) {
+            // Get from form data when POST request
+            $guest = Guest::findOne(['name' => $guestNameFromForm, 'invitation_id' => $invitation->id]);
+        }
+        
+        // Redirect if no guest (not authorized)
+        if (!$guest) {
+            Yii::$app->session->setFlash('error', 'Anda harus menggunakan link undangan yang valid untuk melakukan konfirmasi kehadiran.');
+            return $this->redirect(['view', 'slug' => $slug]);
+        }
+        
+        // Check if already submitted RSVP (by email or name)
+        $existingRsvp = \app\models\Rsvp::find()
+            ->where(['invitation_id' => $invitation->id])
+            ->andWhere(['or',
+                ['email' => $guest->email],
+                ['name' => $guest->name]
+            ])
+            ->one();
+        
+        if ($existingRsvp) {
+            Yii::$app->session->setFlash('info', 'Anda sudah melakukan konfirmasi kehadiran sebelumnya. Terima kasih!');
+            return $this->redirect(['view', 'slug' => $slug, 'to' => $guest->name]);
+        }
+
+        $model = new \app\models\Rsvp();
+        $model->invitation_id = $invitation->id;
+        $model->name = $guest->name;
+        $model->email = $guest->email;
+        $model->phone = $guest->phone;
+
+        if ($model->load(Yii::$app->request->post())) {
+            // Jika tidak hadir, set guests_count ke 0
+            if ($model->attendance === \app\models\Rsvp::ATTENDANCE_NOT_ATTENDING) {
+                $model->guests_count = 0;
+            } else {
+                // Jika hadir, set default 1 orang (diri sendiri)
+                $model->guests_count = 1;
+            }
+
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Terima kasih! Konfirmasi kehadiran Anda telah kami terima.');
+                // Redirect with 'to' parameter using guest name
+                return $this->redirect(['view', 'slug' => $invitation->slug, 'to' => $guest->name]);
+            } else {
+                // Check for specific errors
+                if ($model->hasErrors('email')) {
+                    $errors = $model->getErrors('email');
+                    if (isset($errors[0]) && strpos($errors[0], 'sudah melakukan RSVP') !== false) {
+                        Yii::$app->session->setFlash('error', 'Email Anda sudah terdaftar. Anda hanya bisa melakukan RSVP satu kali untuk undangan ini.');
+                    } else {
+                        Yii::$app->session->setFlash('error', 'Email tidak valid. ' . $errors[0]);
+                    }
+                } else {
+                    Yii::$app->session->setFlash('error', 'Terjadi kesalahan. Mohon periksa kembali form Anda.');
+                }
+            }
+        }
+
+        // Redirect back to invitation page
+        return $this->redirect(['view', 'slug' => $invitation->slug, '#' => 'rsvp']);
     }
 
     /**

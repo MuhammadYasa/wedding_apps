@@ -70,9 +70,12 @@ class Rsvp extends ActiveRecord
             }", 'message' => 'Jumlah tamu wajib diisi jika Anda hadir'],
             [['token'], 'string', 'max' => 128],
             [['invitation_id'], 'exist', 'skipOnError' => true, 'targetClass' => Invitation::class, 'targetAttribute' => ['invitation_id' => 'id']],
+            // Unique constraint: satu nama hanya bisa RSVP sekali per invitation
+            [['name'], 'unique', 'targetAttribute' => ['invitation_id', 'name'], 
+                'message' => 'Anda sudah melakukan konfirmasi kehadiran untuk undangan ini.'],
             // Unique constraint: satu email hanya bisa RSVP sekali per invitation
             [['email'], 'unique', 'targetAttribute' => ['invitation_id', 'email'], 
-                'message' => 'Anda sudah melakukan RSVP sebelumnya untuk undangan ini.'],
+                'message' => 'Email ini sudah digunakan untuk melakukan konfirmasi kehadiran.'],
         ];
     }
 
