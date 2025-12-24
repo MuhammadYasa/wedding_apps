@@ -102,39 +102,32 @@ $this->title = 'Manajemen RSVP';
     <!-- Filters -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <form method="get" action="<?= Url::to(['index']) ?>" class="row g-3">
-                <div class="col-md-4">
+            <form id="filterForm" method="get" action="<?= Url::to(['admin-rsvp/index']) ?>" class="row g-3">
+                <div class="col-md-5">
                     <label for="attendance" class="form-label">
                         <i class="bi bi-funnel me-1"></i>
                         Filter Kehadiran
                     </label>
-                    <select name="attendance" id="attendance" class="form-select">
-                        <option value="">Semua</option>
+                    <select name="attendance" id="attendance" class="form-select" onchange="this.form.submit()">
+                        <option value="all" <?= $currentAttendance === null || $currentAttendance === '' ? 'selected' : '' ?>>Semua</option>
                         <option value="attending" <?= $currentAttendance === 'attending' ? 'selected' : '' ?>>Hadir</option>
                         <option value="not_attending" <?= $currentAttendance === 'not_attending' ? 'selected' : '' ?>>Tidak Hadir</option>
                     </select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-7">
                     <label for="invitation_id" class="form-label">
                         <i class="bi bi-envelope me-1"></i>
                         Filter Undangan
                     </label>
-                    <select name="invitation_id" id="invitation_id" class="form-select">
-                        <option value="">Semua Undangan</option>
+                    <select name="invitation_id" id="invitation_id" class="form-select" onchange="this.form.submit()">
+                        <option value="all" <?= $currentInvitation === null || $currentInvitation === '' ? 'selected' : '' ?>>Semua Undangan</option>
                         <?php foreach ($invitations as $invitation): ?>
                             <option value="<?= $invitation->id ?>" <?= $currentInvitation == $invitation->id ? 'selected' : '' ?>>
                                 <?= Html::encode($invitation->title) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
-                </div>
-
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-search me-1"></i>
-                        Filter
-                    </button>
                 </div>
             </form>
         </div>
@@ -146,15 +139,26 @@ $this->title = 'Manajemen RSVP';
             <?= GridView::widget([
                 'dataProvider' => $dataProvider,
                 'tableOptions' => ['class' => 'table table-hover mb-0'],
+                'layout' => "{items}\n<div class='pagination-wrapper'>{pager}</div>",
+                'pager' => [
+                    'class' => 'yii\\bootstrap5\\LinkPager',
+                    'options' => ['class' => 'pagination pagination-sm justify-content-center mb-0'],
+                    'linkOptions' => ['class' => 'page-link'],
+                    'activePageCssClass' => 'active',
+                    'disabledPageCssClass' => 'disabled',
+                    'maxButtonCount' => 5,
+                ],
                 'columns' => [
                     [
                         'class' => 'yii\grid\SerialColumn',
+                        'header' => 'No',
                         'headerOptions' => ['style' => 'width: 50px'],
                     ],
                     [
                         'attribute' => 'name',
                         'label' => 'Nama',
                         'format' => 'html',
+                        'enableSorting' => false,
                         'value' => function ($model) {
                             return Html::a(
                                 Html::encode($model->name),
@@ -166,10 +170,12 @@ $this->title = 'Manajemen RSVP';
                     [
                         'attribute' => 'email',
                         'label' => 'Email',
+                        'enableSorting' => false,
                     ],
                     [
                         'attribute' => 'phone',
                         'label' => 'Telepon',
+                        'enableSorting' => false,
                         'value' => function ($model) {
                             return $model->phone ?: '-';
                         },
@@ -177,6 +183,7 @@ $this->title = 'Manajemen RSVP';
                     [
                         'attribute' => 'invitation_id',
                         'label' => 'Undangan',
+                        'enableSorting' => false,
                         'value' => function ($model) {
                             return $model->invitation ? $model->invitation->title : '-';
                         },
@@ -185,6 +192,7 @@ $this->title = 'Manajemen RSVP';
                         'attribute' => 'attendance',
                         'label' => 'Kehadiran',
                         'format' => 'html',
+                        'enableSorting' => false,
                         'value' => function ($model) {
                             if ($model->attendance === \app\models\Rsvp::ATTENDANCE_ATTENDING) {
                                 return '<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Hadir</span>';
@@ -195,18 +203,10 @@ $this->title = 'Manajemen RSVP';
                         'headerOptions' => ['style' => 'width: 120px'],
                     ],
                     [
-                        'attribute' => 'guests_count',
-                        'label' => 'Tamu',
-                        'value' => function ($model) {
-                            return $model->guests_count ?: '-';
-                        },
-                        'headerOptions' => ['style' => 'width: 80px; text-align: center'],
-                        'contentOptions' => ['style' => 'text-align: center'],
-                    ],
-                    [
                         'attribute' => 'created_at',
                         'label' => 'Tanggal',
                         'format' => ['date', 'php:d M Y H:i'],
+                        'enableSorting' => false,
                         'headerOptions' => ['style' => 'width: 150px'],
                     ],
                     [
@@ -293,5 +293,59 @@ $this->title = 'Manajemen RSVP';
 
 .grid-view {
     overflow-x: auto;
+}
+
+/* Pagination Styling */
+.pagination-wrapper {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 8px 8px;
+    margin: 0;
+}
+
+.pagination-wrapper .pagination {
+    margin: 0;
+}
+
+.pagination .page-item {
+    margin: 0 3px;
+}
+
+.pagination .page-link {
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    color: #667eea;
+    font-weight: 500;
+    padding: 6px 12px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.pagination .page-item.active .page-link {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+.pagination .page-item.disabled .page-link {
+    background: #e9ecef;
+    border-color: #dee2e6;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.summary {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 15px;
 }
 </style>
