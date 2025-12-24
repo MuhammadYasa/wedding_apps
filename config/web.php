@@ -61,6 +61,10 @@ $config = [
                 'gallery/<id:\d+>' => 'gallery/index',
                 
                 // Admin routes
+                'admin-rsvp' => 'admin-rsvp/index',
+                'admin-rsvp/<action:\w+>' => 'admin-rsvp/<action>',
+                'admin-rsvp/<action:\w+>/<id:\d+>' => 'admin-rsvp/<action>',
+                
                 'admin-guest' => 'admin-guest/index',
                 'admin-guest/<action:\w+>' => 'admin-guest/<action>',
                 'admin-guest/<action:\w+>/<id:\d+>' => 'admin-guest/<action>',
