@@ -39,10 +39,22 @@ class AdminRsvpController extends Controller
      */
     public function actionIndex($attendance = null, $invitation_id = null)
     {
+        // Get from GET parameters (untuk support pagination)
+        $attendance = Yii::$app->request->get('attendance', $attendance);
+        $invitation_id = Yii::$app->request->get('invitation_id', $invitation_id);
+        
         $query = Rsvp::find()->with('invitation');
 
+        // Normalize 'all' or empty to null
+        if ($attendance === 'all' || $attendance === '' || $attendance === null) {
+            $attendance = null;
+        }
+        if ($invitation_id === 'all' || $invitation_id === '' || $invitation_id === null) {
+            $invitation_id = null;
+        }
+
         // Filter by attendance
-        if ($attendance !== null && in_array($attendance, [Rsvp::ATTENDANCE_ATTENDING, Rsvp::ATTENDANCE_NOT_ATTENDING])) {
+        if ($attendance !== null && in_array($attendance, ['attending', 'not_attending'])) {
             $query->andWhere(['attendance' => $attendance]);
         }
 
@@ -57,9 +69,22 @@ class AdminRsvpController extends Controller
                 'defaultOrder' => [
                     'created_at' => SORT_DESC,
                 ],
+                'attributes' => [
+                    'name',
+                    'email',
+                    'created_at',
+                    'attendance',
+                ],
             ],
             'pagination' => [
-                'pageSize' => 20,
+                'pageSize' => 10,
+                'params' => array_merge(
+                    Yii::$app->request->getQueryParams(),
+                    [
+                        'attendance' => $attendance,
+                        'invitation_id' => $invitation_id,
+                    ]
+                ),
             ],
         ]);
 
