@@ -608,13 +608,19 @@ section {
   font-weight: 600;
 }
 
-.attendance-option input[type="radio"]:checked + label .border-success.attendance-card {
+.attendance-option
+  input[type="radio"]:checked
+  + label
+  .border-success.attendance-card {
   background: rgba(72, 187, 120, 0.1);
   border-color: #48bb78 !important;
   border-width: 2px !important;
 }
 
-.attendance-option input[type="radio"]:checked + label .border-danger.attendance-card {
+.attendance-option
+  input[type="radio"]:checked
+  + label
+  .border-danger.attendance-card {
   background: rgba(245, 101, 101, 0.1);
   border-color: #f56565 !important;
   border-width: 2px !important;
