@@ -83,7 +83,7 @@ cd wedding_apps
 
 ### 2. Install Dependencies
 
-```bash
+````bash
 composer install
 ```Environment
 
@@ -91,7 +91,7 @@ Copy `.env.example` to `.env` dan isi dengan credentials Anda:
 
 ```bash
 cp .env.example .env
-```
+````
 
 Edit file `.env` untuk Google OAuth (optional, jika ingin menggunakan Google Login):
 
@@ -101,6 +101,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
 
 **Cara mendapatkan Google OAuth Credentials:**
+
 1. B5. Run Migrations
 
 ```bash
@@ -178,53 +179,55 @@ php yii serve
 ```
 
 Akses: http://localhost:8080
-│   ├── HelloController.php
-│   └── UserController.php       # User management CLI
-├── config/              # Application configuration
-│   ├── db.php                   # Database config
-│   ├── web.php                  # Web + OAuth config
-│   └── console.php              # Console config
-├── controllers/         # Controllers
-│   ├── SiteController.php       # Homepage, login, logout
-│   ├── AuthController.php       # Google OAuth callback
-│   ├── InvitationController.php # Public invitation view
-│   ├── AdminInvitationController.php  # Invitation CRUD (RBAC)
-│   ├── AdminUserController.php        # User management (Super User only)
-│   ├── AdminGuestController.php       # Guest management (RBAC)
-│   ├── AdminGalleryController.php     # Gallery management (RBAC)
-│   └── AdminRsvpController.php        # RSVP management (RBAC)
-├── migrations/          # Database migrations
-│   ├── m251222_161632_create_user_table.php
-│   ├── m251222_161706_create_invitation_table.php
-│   ├── m251222_161722_create_gallery_table.php
-│   ├── m251222_161739_create_rsvp_table.php
-│   ├── m251222_161749_create_guest_table.php
-│   ├── m251222_171147_insert_seed_data.php
-│   ├── m251224_071652_add_role_to_user_table.php
-│   ├── m251224_071828_add_user_id_to_invitation_table.php
-│   ├── m251224_095614_add_nickname_to_invitation_table.php
-│   ├── m251224_100834_update_title_length_in_invitation_table.php
-│   ├── m251225_024655_add_google_id_to_user_table.php
-│   └── m251225_033456_add_is_active_to_user_table.php
-├── models/              # Data models
-│   ├── User.php                 # User model with RBAC & OAuth
-│   ├── Invitation.php           # Invitation model with owner
-│   ├── Gallery.php
-│   ├── Guest.php
-│   ├── Rsvp.php
-│   └── LoginForm.php            # Login with dual auth support
-├── views/               # View templatesdevi-and-wawan`
+│ ├── HelloController.php
+│ └── UserController.php # User management CLI
+├── config/ # Application configuration
+│ ├── db.php # Database config
+│ ├── web.php # Web + OAuth config
+│ └── console.php # Console config
+├── controllers/ # Controllers
+│ ├── SiteController.php # Homepage, login, logout
+│ ├── AuthController.php # Google OAuth callback
+│ ├── InvitationController.php # Public invitation view
+│ ├── AdminInvitationController.php # Invitation CRUD (RBAC)
+│ ├── AdminUserController.php # User management (Super User only)
+│ ├── AdminGuestController.php # Guest management (RBAC)
+│ ├── AdminGalleryController.php # Gallery management (RBAC)
+│ └── AdminRsvpController.php # RSVP management (RBAC)
+├── migrations/ # Database migrations
+│ ├── m251222_161632_create_user_table.php
+│ ├── m251222_161706_create_invitation_table.php
+│ ├── m251222_161722_create_gallery_table.php
+│ ├── m251222_161739_create_rsvp_table.php
+│ ├── m251222_161749_create_guest_table.php
+│ ├── m251222_171147_insert_seed_data.php
+│ ├── m251224_071652_add_role_to_user_table.php
+│ ├── m251224_071828_add_user_id_to_invitation_table.php
+│ ├── m251224_095614_add_nickname_to_invitation_table.php
+│ ├── m251224_100834_update_title_length_in_invitation_table.php
+│ ├── m251225_024655_add_google_id_to_user_table.php
+│ └── m251225_033456_add_is_active_to_user_table.php
+├── models/ # Data models
+│ ├── User.php # User model with RBAC & OAuth
+│ ├── Invitation.php # Invitation model with owner
+│ ├── Gallery.php
+│ ├── Guest.php
+│ ├── Rsvp.php
+│ └── LoginForm.php # Login with dual auth support
+├── views/ # View templatesdevi-and-wawan`
 
 Setiap client user memiliki undangan dengan slug unik yang bisa diakses publik.
 
 ### Login Options
 
 **1. Login via Username & Password:**
+
 - URL: `http://localhost:8080/site/login`
 - Gunakan credentials yang sudah terdaftar
 - Support untuk super_user dan client role
 
 **2. Login via Google OAuth:**
+
 - Click tombol "Continue with Google" di halaman login
 - Login dengan akun Google Anda
 - **⚠️ Requirement**: Email Google harus sudah didaftarkan oleh Super User
@@ -235,6 +238,7 @@ Setiap client user memiliki undangan dengan slug unik yang bisa diakses publik.
 Setelah login sebagai super user (`nearhxh`):
 
 1. **Kelola User** - Buat dan kelola user accounts
+
    - Create client users dengan email Google untuk OAuth
    - Set role: super_user atau client
    - Input nama pasangan dan nickname
@@ -242,16 +246,19 @@ Setelah login sebagai super user (`nearhxh`):
    - Status tidak berlaku untuk super_user role
 
 2. **Kelola Undangan** - Manage semua undangan
+
    - Lihat semua undangan dari semua client
    - Assign undangan ke user tertentu
    - Toggle status undangan (sync dengan user status)
    - Edit detail undangan
 
 3. **Kelola Tamu** - Manage semua guest lists
+
    - Lihat tamu dari semua undangan
    - Export to CSV
 
 4. **Kelola Gallery** - Manage semua foto
+
    - Upload foto untuk semua undangan
    - Fullscreen lightbox view dengan keyboard navigation
 
@@ -265,6 +272,7 @@ Setelah login sebagai client user:
    - Update nama pasangan, tanggal, lokasi
    - Preview undangan publik
    - **Catatan**: Tidak bisa toggle status (diatur oleh super user)
+
 - OAuth 2.0 integration (yii2-authclient)
 - Console commands
 - Transaction-based operations
@@ -331,7 +339,7 @@ This project is open-sourced under the BSD-3-Clause license.
 
 ---
 
-**Dibuat dengan ❤️ menggunakan Yii2 Framework + Google OAuthr
+\*\*Dibuat dengan ❤️ menggunakan Yii2 Framework + Google OAuthr
 
 ### Send Invitations via WhatsApp (Manual)
 
@@ -353,23 +361,26 @@ php yii user/reset-password <username>
 ```
 
 Contoh:
+
 ```bash
 php yii user/reset-password wawanr
 # Enter new password: ********
 # Password untuk user 'wawanr' berhasil diubah!
 ```
-├── views/               # View templates
-│   ├── layouts/
-│   ├── site/
-│   ├── invitation/
-│   └── admin-guest/
-├── web/                 # Web root (public)
-│   ├── index.php       # Entry script
-│   ├── css/
-│   ├── js/
-│   └── uploads/        # Uploaded files
-└── tests/              # Automated tests
-```
+
+├── views/ # View templates
+│ ├── layouts/
+│ ├── site/
+│ ├── invitation/
+│ └── admin-guest/
+├── web/ # Web root (public)
+│ ├── index.php # Entry script
+│ ├── css/
+│ ├── js/
+│ └── uploads/ # Uploaded files
+└── tests/ # Automated tests
+
+````
 
 ## 🎯 Usage
 
@@ -404,7 +415,7 @@ vendor/bin/codecept run
 # Run specific test suite
 vendor/bin/codecept run unit
 vendor/bin/codecept run functional
-```
+````
 
 ## 🎓 Portfolio Context
 
