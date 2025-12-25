@@ -1,0 +1,287 @@
+/* ========================================
+   Rustic Theme - Natural & Warm
+   ======================================== */
+
+:root {
+  --primary-color: #8b6f47;
+  --secondary-color: #5d4e37;
+  --accent-color: #a0826d;
+  --text-dark: #3e2723;
+  --text-light: #795548;
+  --bg-light: #f5f5dc;
+  --white: #fffef7;
+  --shadow: 0 4px 12px rgba(93, 78, 55, 0.2);
+  --gradient-overlay: linear-gradient(
+    to bottom,
+    rgba(139, 111, 71, 0.5),
+    rgba(93, 78, 55, 0.6)
+  );
+}
+
+/* Typography - Handwritten & Natural */
+body {
+  font-family: "Comic Sans MS", "Segoe Print", cursive;
+  color: var(--text-dark);
+  background: var(--bg-light);
+}
+
+.couple-names {
+  font-family: "Brush Script MT", "Lucida Handwriting", cursive;
+  font-weight: 400;
+  font-size: 3.8rem;
+  letter-spacing: 1px;
+  color: var(--primary-color);
+  text-shadow: 2px 2px 4px rgba(93, 78, 55, 0.1);
+}
+
+.ampersand {
+  font-family: "Brush Script MT", cursive;
+  font-size: 4.5rem;
+  color: var(--secondary-color);
+  transform: rotate(-5deg);
+  display: inline-block;
+}
+
+/* Buttons - Wooden Style */
+.btn-primary {
+  background: linear-gradient(
+    to bottom,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  border: 3px solid var(--secondary-color);
+  border-radius: 10px;
+  padding: 14px 35px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 0 var(--secondary-color), 0 8px 15px rgba(93, 78, 55, 0.3);
+  position: relative;
+  top: 0;
+}
+
+.btn-primary:hover {
+  top: 3px;
+  box-shadow: 0 3px 0 var(--secondary-color), 0 5px 10px rgba(93, 78, 55, 0.3);
+}
+
+.btn-primary:active {
+  top: 6px;
+  box-shadow: 0 0 0 var(--secondary-color), 0 2px 5px rgba(93, 78, 55, 0.3);
+}
+
+/* Sections - Natural Spacing */
+section {
+  padding: 80px 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%238b6f47' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.section-title {
+  font-family: "Brush Script MT", cursive;
+  font-size: 2.8rem;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  position: relative;
+  text-shadow: 1px 1px 2px rgba(93, 78, 55, 0.1);
+}
+
+.section-title::after {
+  content: "🌿";
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+}
+
+/* Cards - Wooden Texture */
+.info-card {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 35px;
+  box-shadow: var(--shadow);
+  border: 3px dashed var(--accent-color);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.info-card::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border: 2px solid var(--primary-color);
+  border-radius: 18px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.info-card:hover::before {
+  opacity: 1;
+}
+
+.info-card:hover {
+  transform: rotate(-1deg) scale(1.02);
+}
+
+/* Countdown - Barnwood Style */
+.countdown-box {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  color: var(--white);
+  border-radius: 20px;
+  padding: 45px;
+  box-shadow: 0 10px 25px rgba(93, 78, 55, 0.4);
+  border: 4px solid var(--secondary-color);
+  background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.countdown-item {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  padding: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Dividers - Natural */
+.divider {
+  width: 150px;
+  height: 3px;
+  background: var(--primary-color);
+  margin: 25px auto;
+  position: relative;
+  border-radius: 2px;
+}
+
+.divider::before {
+  content: "✿";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-light);
+  color: var(--secondary-color);
+  padding: 0 10px;
+  font-size: 1.2rem;
+}
+
+/* Gallery - Polaroid Style */
+.gallery-item {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  background: var(--white);
+  padding: 12px;
+  border: 2px solid var(--accent-color);
+}
+
+.gallery-item:hover {
+  transform: rotate(2deg) scale(1.05);
+  box-shadow: 0 12px 30px rgba(93, 78, 55, 0.3);
+}
+
+/* RSVP Form - Notebook Style */
+.rsvp-form {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 45px;
+  box-shadow: 0 10px 25px rgba(93, 78, 55, 0.2);
+  border: 3px solid var(--primary-color);
+  background-image: linear-gradient(
+    transparent 29px,
+    var(--accent-color) 29px,
+    var(--accent-color) 30px,
+    transparent 30px
+  );
+  background-size: 100% 30px;
+  position: relative;
+}
+
+.rsvp-form::before {
+  content: "";
+  position: absolute;
+  left: 30px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--accent-color),
+    var(--accent-color) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+.form-control {
+  background: transparent;
+  border: none;
+  border-bottom: 2px dotted var(--accent-color);
+  border-radius: 0;
+  font-family: "Comic Sans MS", cursive;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: none;
+  background: rgba(139, 111, 71, 0.05);
+}
+
+/* Animations - Bouncy & Natural */
+@keyframes rusticBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) rotate(-2deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-10px) rotate(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+.animate-fade-in-up {
+  animation: rusticBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .couple-names {
+    font-size: 2.6rem;
+  }
+
+  .ampersand {
+    font-size: 3.2rem;
+  }
+
+  .section-title {
+    font-size: 2.2rem;
+  }
+
+  section {
+    padding: 60px 0;
+  }
+
+  .info-card,
+  .rsvp-form {
+    padding: 28px;
+  }
+}

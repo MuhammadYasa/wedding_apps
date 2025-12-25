@@ -15,8 +15,12 @@ use app\models\Rsvp;
 
 $this->title = $invitation->title;
 
-// Register CSS
+// Register base CSS
 $this->registerCssFile('@web/css/invitation.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+
+// Register theme CSS based on invitation theme
+$theme = $invitation->theme ?? 'default';
+$this->registerCssFile("@web/css/themes/{$theme}.css", ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 
 // Register Lightbox CSS & JS
 $this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
