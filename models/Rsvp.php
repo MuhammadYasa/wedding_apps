@@ -57,10 +57,22 @@ class Rsvp extends ActiveRecord
             [['invitation_id', 'name', 'email', 'attendance'], 'required', 'message' => '{attribute} wajib diisi'],
             [['invitation_id', 'guests_count', 'created_at'], 'integer'],
             [['name'], 'string', 'max' => 255],
+            [['name'], 'filter', 'filter' => 'trim'],
+            [['name'], 'filter', 'filter' => function($value) {
+                return strip_tags($value); // Remove HTML tags
+            }],
             [['email'], 'string', 'max' => 191],
             ['email', 'email', 'message' => 'Format email tidak valid'],
+            ['email', 'filter', 'filter' => 'trim'],
+            ['email', 'filter', 'filter' => 'strtolower'],
             [['phone'], 'string', 'max' => 50],
+            [['phone'], 'filter', 'filter' => 'trim'],
+            [['phone'], 'match', 'pattern' => '/^[0-9+\-\s()]+$/', 'message' => 'Format nomor telepon tidak valid'],
             [['message'], 'string'],
+            [['message'], 'filter', 'filter' => 'trim'],
+            [['message'], 'filter', 'filter' => function($value) {
+                return \yii\helpers\HtmlPurifier::process($value); // Sanitize HTML
+            }],
             [['attendance'], 'in', 'range' => [self::ATTENDANCE_ATTENDING, self::ATTENDANCE_NOT_ATTENDING]],
             [['guests_count'], 'integer', 'min' => 1, 'max' => 2],
             [['guests_count'], 'required', 'when' => function($model) {

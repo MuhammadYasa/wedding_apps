@@ -93,12 +93,21 @@ class Invitation extends ActiveRecord
             [['title', 'bride_name', 'groom_name', 'event_date'], 'required'],
             [['bride_nickname', 'groom_nickname'], 'required', 'message' => 'Nama panggilan harus diisi'],
             [['title'], 'string', 'max' => 500],
+            [['title'], 'filter', 'filter' => 'trim'],
             [['bride_name', 'groom_name', 'bride_father', 'bride_mother', 
               'groom_father', 'groom_mother'], 'string', 'max' => 255],
+            [['bride_name', 'groom_name', 'bride_father', 'bride_mother', 
+              'groom_father', 'groom_mother'], 'filter', 'filter' => 'trim'],
             [['bride_nickname', 'groom_nickname'], 'string', 'max' => 100],
+            [['bride_nickname', 'groom_nickname'], 'filter', 'filter' => 'trim'],
             [['slug', 'event_time'], 'string', 'max' => 50],
             [['venue', 'venue_address', 'story', 'description'], 'string'],
+            [['venue', 'venue_address', 'story', 'description'], 'filter', 'filter' => 'trim'],
+            [['story', 'description'], 'filter', 'filter' => function($value) {
+                return \yii\helpers\HtmlPurifier::process($value); // Sanitize HTML
+            }],
             [['venue_map_url'], 'string', 'max' => 500],
+            [['venue_map_url'], 'url', 'message' => 'URL peta tidak valid'],
             [['venue_lat', 'venue_lng'], 'number'],
             [['event_date', 'created_at', 'updated_at', 'user_id'], 'integer'],
             [['is_active'], 'boolean'],
@@ -187,7 +196,8 @@ class Invitation extends ActiveRecord
      */
     public function getGuests()
     {
-        return $this->hasMany(Guest::class, ['invitation_id' => 'id']);
+        return $this->hasMany(Rsvp::class, ['invitation_id' => 'id'])
+            ->orderBy(['created_at' => SORT_DESC]);
     }
 
     /**

@@ -55,18 +55,25 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function rules()
     {
+        $security = require Yii::getAlias('@app/config/security.php');
+        $passwordPolicy = $security['password'];
+        
         return [
             [['username', 'email'], 'required'],
             ['password', 'required', 'on' => 'create'],
-            ['password', 'string', 'min' => 6, 'on' => ['create', 'update']],
+            ['password', 'string', 'min' => $passwordPolicy['minLength'], 'on' => ['create', 'update']],
+            ['password', 'validatePasswordStrength', 'on' => ['create', 'update']],
             [['created_at', 'updated_at'], 'integer'],
             ['role', 'in', 'range' => [self::ROLE_SUPER_USER, self::ROLE_CLIENT]],
             ['role', 'default', 'value' => self::ROLE_CLIENT],
             ['username', 'string', 'max' => 255],
             ['username', 'unique'],
+            ['username', 'match', 'pattern' => '/^[a-zA-Z0-9_-]+$/', 'message' => 'Username hanya boleh mengandung huruf, angka, underscore, dan dash'],
             ['email', 'email'],
             ['email', 'string', 'max' => 191],
             ['email', 'unique'],
+            ['email', 'filter', 'filter' => 'trim'],
+            ['email', 'filter', 'filter' => 'strtolower'],
             // Couple names required when creating client user
             [['bride_name', 'groom_name'], 'required', 'when' => function($model) {
                 return $model->role === self::ROLE_CLIENT && $model->scenario === 'create';
@@ -74,7 +81,38 @@ class User extends ActiveRecord implements IdentityInterface
                 return $('#user-role').val() === 'client';
             }"],
             [['bride_name', 'groom_name'], 'string', 'max' => 255],
+            [['bride_name', 'groom_name'], 'filter', 'filter' => 'trim'],
         ];
+    }
+    
+    /**
+     * Validate password strength based on security policy
+     */
+    public function validatePasswordStrength($attribute, $params)
+    {
+        if (empty($this->$attribute)) {
+            return;
+        }
+        
+        $security = require Yii::getAlias('@app/config/security.php');
+        $policy = $security['password'];
+        $password = $this->$attribute;
+        
+        if ($policy['requireUppercase'] && !preg_match('/[A-Z]/', $password)) {
+            $this->addError($attribute, 'Password harus mengandung minimal 1 huruf besar.');
+        }
+        
+        if ($policy['requireLowercase'] && !preg_match('/[a-z]/', $password)) {
+            $this->addError($attribute, 'Password harus mengandung minimal 1 huruf kecil.');
+        }
+        
+        if ($policy['requireNumbers'] && !preg_match('/[0-9]/', $password)) {
+            $this->addError($attribute, 'Password harus mengandung minimal 1 angka.');
+        }
+        
+        if ($policy['requireSpecialChars'] && !preg_match('/[^a-zA-Z0-9]/', $password)) {
+            $this->addError($attribute, 'Password harus mengandung minimal 1 karakter spesial.');
+        }
     }
 
     /**
