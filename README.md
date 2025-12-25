@@ -103,6 +103,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
 
 **Cara mendapatkan Google OAuth Credentials:**
+
 1. Buka [Google Cloud Console](https://console.cloud.google.com/)
 2. Buat project baru atau pilih existing project
 3. Enable Google+ API
@@ -257,11 +258,13 @@ Setiap client user memiliki undangan dengan slug unik yang bisa diakses publik.
 ### Login Options
 
 **1. Login via Username & Password:**
+
 - URL: `http://localhost:8080/site/login`
 - Gunakan credentials yang sudah terdaftar
 - Support untuk super_user dan client role
 
 **2. Login via Google OAuth:**
+
 - Click tombol "Continue with Google" di halaman login
 - Login dengan akun Google Anda
 - **⚠️ Requirement**: Email Google harus sudah didaftarkan oleh Super User
@@ -272,6 +275,7 @@ Setiap client user memiliki undangan dengan slug unik yang bisa diakses publik.
 Setelah login sebagai super user (`nearhxh`):
 
 1. **Kelola User** - Buat dan kelola user accounts
+
    - Create client users dengan email Google untuk OAuth
    - Set role: super_user atau client
    - Input nama pasangan dan nickname
@@ -279,16 +283,19 @@ Setelah login sebagai super user (`nearhxh`):
    - Status tidak berlaku untuk super_user role
 
 2. **Kelola Undangan** - Manage semua undangan
+
    - Lihat semua undangan dari semua client
    - Assign undangan ke user tertentu
    - Toggle status undangan (sync dengan user status)
    - Edit detail undangan
 
 3. **Kelola Tamu** - Manage semua guest lists
+
    - Lihat tamu dari semua undangan
    - Export to CSV
 
 4. **Kelola Gallery** - Manage semua foto
+
    - Upload foto untuk semua undangan
    - Fullscreen lightbox view dengan keyboard navigation
 
@@ -299,16 +306,19 @@ Setelah login sebagai super user (`nearhxh`):
 Setelah login sebagai client user:
 
 1. **Edit Undangan** - Edit detail undangan sendiri
+
    - Update nama pasangan, tanggal, lokasi
    - Preview undangan publik
    - **Catatan**: Tidak bisa toggle status (diatur oleh super user)
 
 2. **Kelola Tamu** - Manage guest list sendiri
+
    - Add/edit/delete guests
    - Generate WhatsApp links per tamu
    - Export to CSV
 
 3. **Gallery** - Upload dan kelola foto sendiri
+
    - Upload foto acara
    - Fullscreen lightbox view
 
@@ -317,12 +327,14 @@ Setelah login sebagai client user:
 ### Status Management
 
 **Untuk Super User:**
+
 - Toggle status user/invitation dari dashboard
 - Perubahan status user → otomatis sync ke semua undangannya
 - Perubahan status invitation → sync ke owner user
 - Super user sendiri tidak terpengaruh status (selalu aktif)
 
 **Status Effect:**
+
 - User dengan `is_active = false` tidak bisa login
 - Invitation dengan `is_active = false` tidak bisa diakses publik
 - Link undangan akan menampilkan halaman error
@@ -347,6 +359,7 @@ php yii user/reset-password <username>
 ```
 
 Contoh:
+
 ```bash
 php yii user/reset-password wawanr
 # Enter new password: ********
@@ -363,70 +376,6 @@ vendor/bin/codecept run
 vendor/bin/codecept run unit
 vendor/bin/codecept run functional
 ```
-
-## 🎓 Portfolio Context
-
-Project ini dibuat sebagai portfolio showcase untuk mendemonstrasikan:
-
-✅ **Yii2 Framework Mastery**
-- MVC architecture
-- Active Record ORM
-- Migrations & seeding
-- Behaviors (Timestamp, Sluggable)
-- Authentication & Authorization
-- OAuth 2.0 integration (yii2-authclient)
-- Console commands
-- Transaction-based operations
-
-✅ **Role-Based Access Control (RBAC)**
-- Custom role implementation (super_user, client)
-- Role-based menu rendering
-- Access control filters
-- Owner-based data filtering
-- Status management with role exemption
-
-✅ **Database Design**
-- Proper foreign keys & indexes
-- Data integrity & constraints
-- Optimized queries
-- Bidirectional status synchronization
-- Multi-tenant data isolation
-
-✅ **Security Best Practices**
-- Password hashing (bcrypt)
-- CSRF protection
-- Input validation & sanitization
-- File upload security
-- OAuth 2.0 authentication
-- Email whitelist validation
-- SQL injection prevention
-
-✅ **Modern UI/UX**
-- Bootstrap 5 responsive design
-- Bootstrap Icons integration
-- Fullscreen lightbox with keyboard navigation
-- Horizontal navigation layout
-- Status badges with toggle controls
-- Google OAuth button styling
-
-✅ **Real-world Application**
-- Multi-tenant SaaS architecture
-- WhatsApp integration
-- Google OAuth 2.0 authentication
-- Google Maps embed
-- Image gallery with lightbox
-- CSV export
-- Status management system
-- Personalized invitation links
-
-✅ **Code Quality**
-- Clean code principles
-- Separation of concerns
-- DRY (Don't Repeat Yourself)
-- Professional git commits
-- Comprehensive documentation
-
----
 
 ## 📝 License
 
