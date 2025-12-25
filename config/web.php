@@ -2,6 +2,7 @@
 
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
+$security = require __DIR__ . '/security.php';
 
 $config = [
     'id' => 'basic',
@@ -9,6 +10,10 @@ $config = [
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'timeZone' => 'Asia/Jakarta',
+    'params' => array_merge(
+        $params,
+        ['security' => $security]
+    ),
     'aliases' => [
         '@bower' => '@vendor/yidas/yii2-bower-asset/bower',
         '@npm'   => '@vendor/npm-asset',
@@ -16,14 +21,41 @@ $config = [
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-            'cookieValidationKey' => 'wedding_1234567890',
+            'cookieValidationKey' => getenv('COOKIE_VALIDATION_KEY') ?: 'wedding_1234567890',
+            'enableCsrfValidation' => true,
+            'csrfParam' => '_csrf-wedding',
+            'enableCsrfCookie' => true,
+            'csrfCookie' => [
+                'httpOnly' => true,
+                'secure' => !YII_DEBUG,
+            ],
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ],
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
+            'directoryLevel' => 2,
+            'defaultDuration' => 3600, // 1 hour default cache
         ],
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
+            'loginUrl' => ['site/login'],
+            'identityCookie' => [
+                'name' => '_identity-wedding',
+                'httpOnly' => true,
+                'secure' => !YII_DEBUG,
+            ],
+        ],
+        'session' => [
+            'class' => 'yii\web\Session',
+            'timeout' => 3600, // 1 hour
+            'cookieParams' => [
+                'httpOnly' => true,
+                'secure' => !YII_DEBUG,
+                'sameSite' => 'Lax',
+            ],
         ],
         'authClientCollection' => [
             'class' => 'yii\authclient\Collection',
@@ -35,6 +67,21 @@ $config = [
                     'returnUrl' => 'http://localhost/wedding_apps/web/auth/callback',
                 ],
             ],
+        ],
+        'assetManager' => [
+            'class' => 'yii\web\AssetManager',
+            'bundles' => YII_ENV_PROD ? [
+                'yii\web\JqueryAsset' => [
+                    'js' => ['jquery.min.js']
+                ],
+                'yii\bootstrap5\BootstrapAsset' => [
+                    'css' => ['bootstrap.min.css']
+                ],
+                'yii\bootstrap5\BootstrapPluginAsset' => [
+                    'js' => ['bootstrap.bundle.min.js']
+                ],
+            ] : [],
+            'appendTimestamp' => true, // Add timestamp to assets for cache busting
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -58,6 +105,8 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
+            'enableStrictParsing' => false,
+            'cache' => 'cache', // Enable URL rule caching
             'rules' => [
                 // Auth routes (must be before generic rules)
                 'auth/login' => 'auth/login',
@@ -99,7 +148,6 @@ $config = [
             ],
         ],
     ],
-    'params' => $params,
 ];
 
 if (YII_ENV_DEV) {
