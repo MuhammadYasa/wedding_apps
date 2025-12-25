@@ -19,10 +19,6 @@ $this->title = 'Manajemen RSVP';
 
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>
-            <i class="bi bi-calendar-check me-2"></i>
-            <?= Html::encode($this->title) ?>
-        </h1>
         <div>
             <?= Html::a(
                 '<i class="bi bi-download me-2"></i>Export CSV',
@@ -103,7 +99,7 @@ $this->title = 'Manajemen RSVP';
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <form id="filterForm" method="get" action="<?= Url::to(['admin-rsvp/index']) ?>" class="row g-3">
-                <div class="col-md-5">
+                <div class="<?= Yii::$app->user->identity->isSuperUser() ? 'col-md-5' : 'col-md-12' ?>">
                     <label for="attendance" class="form-label">
                         <i class="bi bi-funnel me-1"></i>
                         Filter Kehadiran
@@ -115,6 +111,7 @@ $this->title = 'Manajemen RSVP';
                     </select>
                 </div>
 
+                <?php if (Yii::$app->user->identity->isSuperUser()): ?>
                 <div class="col-md-7">
                     <label for="invitation_id" class="form-label">
                         <i class="bi bi-envelope me-1"></i>
@@ -129,6 +126,7 @@ $this->title = 'Manajemen RSVP';
                         <?php endforeach; ?>
                     </select>
                 </div>
+                <?php endif; ?>
             </form>
         </div>
     </div>
@@ -184,6 +182,7 @@ $this->title = 'Manajemen RSVP';
                         'attribute' => 'invitation_id',
                         'label' => 'Undangan',
                         'enableSorting' => false,
+                        'visible' => Yii::$app->user->identity->isSuperUser(),
                         'value' => function ($model) {
                             return $model->invitation ? $model->invitation->title : '-';
                         },

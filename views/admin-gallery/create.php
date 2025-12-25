@@ -36,8 +36,6 @@ $this->registerJsFile('@web/js/gallery-preview.js', ['depends' => [\yii\web\Jque
                             'multiple' => true
                         ])->label('Pilih Gambar <span class="text-danger">*</span>')->hint('Format: JPG, JPEG, PNG. Maksimal 5MB per foto. Bisa pilih beberapa foto sekaligus (max 20 foto)') ?>
 
-                        <?= $form->field($model, 'caption')->textInput(['maxlength' => true])->hint('Opsional, caption ini akan digunakan untuk semua foto yang diupload') ?>
-
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle"></i>
                             <strong>Tips Upload Multiple:</strong>

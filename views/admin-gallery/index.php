@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\helpers\Url;
+use app\models\Invitation;
 
 /* @var $this yii\web\View */
 /* @var $invitation app\models\Invitation|null */
@@ -19,23 +20,28 @@ if ($invitation) {
     $this->params['breadcrumbs'][] = 'Gallery Management';
 }
 
-// Register SortableJS CDN
-$this->registerJsFile('https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js', ['position' => \yii\web\View::POS_HEAD]);
-
-// Register custom gallery sortable script
-$this->registerJsFile('@web/js/gallery-sortable.js', ['depends' => [\yii\web\JqueryAsset::class]]);
-
-// Initialize sortable with sort URL
-$sortUrl = Url::to(['sort']);
-$this->registerJs("initGallerySortable('$sortUrl');", \yii\web\View::POS_READY);
-
 // Register custom CSS
 $this->registerCss('
 .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     margin-top: 20px;
+}
+@media (max-width: 1200px) {
+    .gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 768px) {
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 480px) {
+    .gallery-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
 }
 .gallery-item {
     position: relative;
@@ -43,7 +49,6 @@ $this->registerCss('
     border-radius: 8px;
     overflow: hidden;
     background: #fff;
-    cursor: move;
     transition: transform 0.2s;
 }
 .gallery-item:hover {
@@ -74,23 +79,30 @@ $this->registerCss('
     display: flex;
     gap: 5px;
 }
-.sortable-ghost {
-    opacity: 0.4;
-}
 ');
 ?>
 
 <div class="admin-gallery-index">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1><?= Html::encode($this->title) ?></h1>
-        <?php if ($invitation): ?>
-            <?= Html::a('<i class="bi bi-plus-circle"></i> Tambah Foto', ['create', 'invitation_id' => $invitation->id], ['class' => 'btn btn-success']) ?>
-        <?php endif; ?>
+        <?php 
+        // For client: auto-get their invitation and show upload button
+        if (Yii::$app->user->identity->isClient()) {
+            $clientInvitation = Invitation::find()
+                ->where(['user_id' => Yii::$app->user->id])
+                ->one();
+            if ($clientInvitation) {
+                echo Html::a('<i class="bi bi-plus-circle"></i> Upload Foto', ['create', 'invitation_id' => $clientInvitation->id], ['class' => 'btn btn-success']);
+            }
+        } elseif ($invitation) {
+            // For super user with selected invitation
+            echo Html::a('<i class="bi bi-plus-circle"></i> Tambah Foto', ['create', 'invitation_id' => $invitation->id], ['class' => 'btn btn-success']);
+        }
+        ?>
     </div>
 
-    <!-- Filter Invitation -->
-    <?php if (!$invitation): ?>
+    <!-- Filter Invitation - Only for Super User -->
+    <?php if (!$invitation && Yii::$app->user->identity->isSuperUser()): ?>
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <form method="get" action="<?= Url::to(['index']) ?>" class="row g-3">
@@ -120,27 +132,25 @@ $this->registerCss('
     <?php endif; ?>
 
     <?php if ($invitation): ?>
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i> 
-        <strong>Tips:</strong> Drag & drop foto untuk mengubah urutan tampilan.
-    </div>
 
-    <div class="gallery-grid" id="gallery-sortable">
-        <?php foreach ($dataProvider->models as $gallery): ?>
+    <div class="gallery-grid">
+        <?php foreach ($dataProvider->models as $index => $gallery): ?>
             <div class="gallery-item" data-id="<?= $gallery->id ?>">
-                <img src="<?= $gallery->getThumbnailUrl() ?>" alt="<?= Html::encode($gallery->caption ?? '') ?>" onerror="this.src='<?= $gallery->getImageUrl() ?>'">
+                <img src="<?= $gallery->getThumbnailUrl() ?>" 
+                     alt="<?= Html::encode($gallery->caption ?? '') ?>" 
+                     onerror="this.src='<?= $gallery->getImageUrl() ?>'"
+                     class="gallery-image-clickable"
+                     data-full-url="<?= $gallery->getImageUrl() ?>"
+                     data-caption="<?= Html::encode($gallery->caption ?? '') ?>"
+                     data-index="<?= $index ?>"
+                     style="cursor: pointer;">
                 <div class="gallery-item-info">
-                    <div class="gallery-item-caption">
-                        <?= Html::encode($gallery->caption ?: '(Tanpa caption)') ?>
-                    </div>
-                    <div class="gallery-item-order">
-                        <i class="bi bi-arrows-move"></i> Urutan: <?= $gallery->sort_order ?>
-                    </div>
+                    <?php if ($gallery->caption): ?>
+                        <div class="gallery-item-caption">
+                            <?= Html::encode($gallery->caption) ?>
+                        </div>
+                    <?php endif; ?>
                     <div class="gallery-item-actions">
-                        <?= Html::a('<i class="bi bi-pencil"></i>', ['update', 'id' => $gallery->id], [
-                            'class' => 'btn btn-sm btn-primary',
-                            'title' => 'Edit'
-                        ]) ?>
                         <?= Html::a('<i class="bi bi-trash"></i>', ['delete', 'id' => $gallery->id], [
                             'class' => 'btn btn-sm btn-danger',
                             'title' => 'Hapus',
@@ -161,6 +171,96 @@ $this->registerCss('
             Belum ada foto. Klik tombol "Tambah Foto" untuk mengunggah.
         </div>
     <?php endif; ?>
+
+    <!-- Lightbox Modal -->
+    <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content bg-dark">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-white" id="lightboxCaption"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex align-items-center justify-content-center p-0" style="position: relative;">
+                    <button class="btn btn-light btn-lg" id="prevBtn" style="position: absolute; left: 20px; z-index: 1000;">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <img id="lightboxImage" src="" class="img-fluid" style="max-height: 90vh; max-width: 90vw; object-fit: contain;">
+                    <button class="btn btn-light btn-lg" id="nextBtn" style="position: absolute; right: 20px; z-index: 1000;">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <span class="text-white" id="imageCounter"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php
+    // JavaScript for lightbox functionality
+    $this->registerJs("
+        let currentImageIndex = 0;
+        let images = [];
+        
+        // Collect all images
+        $('.gallery-image-clickable').each(function(index) {
+            images.push({
+                url: $(this).data('full-url'),
+                caption: $(this).data('caption'),
+                index: index
+            });
+        });
+        
+        // Open lightbox on image click
+        $('.gallery-image-clickable').click(function() {
+            currentImageIndex = parseInt($(this).data('index'));
+            showImage(currentImageIndex);
+            $('#lightboxModal').modal('show');
+        });
+        
+        // Show image function
+        function showImage(index) {
+            if (images.length > 0) {
+                $('#lightboxImage').attr('src', images[index].url);
+                $('#lightboxCaption').text(images[index].caption || 'Foto ' + (index + 1));
+                $('#imageCounter').text((index + 1) + ' / ' + images.length);
+                
+                // Disable/enable buttons based on position
+                $('#prevBtn').prop('disabled', index === 0);
+                $('#nextBtn').prop('disabled', index === images.length - 1);
+            }
+        }
+        
+        // Previous button
+        $('#prevBtn').click(function() {
+            if (currentImageIndex > 0) {
+                currentImageIndex--;
+                showImage(currentImageIndex);
+            }
+        });
+        
+        // Next button
+        $('#nextBtn').click(function() {
+            if (currentImageIndex < images.length - 1) {
+                currentImageIndex++;
+                showImage(currentImageIndex);
+            }
+        });
+        
+        // Keyboard navigation
+        $(document).keydown(function(e) {
+            if ($('#lightboxModal').hasClass('show')) {
+                if (e.keyCode === 37) { // Left arrow
+                    $('#prevBtn').click();
+                } else if (e.keyCode === 39) { // Right arrow
+                    $('#nextBtn').click();
+                } else if (e.keyCode === 27) { // Escape
+                    $('#lightboxModal').modal('hide');
+                }
+            }
+        });
+    ", \yii\web\View::POS_READY);
+    ?>
     
     <?php else: ?>
     <!-- GridView for all galleries when no specific invitation selected -->

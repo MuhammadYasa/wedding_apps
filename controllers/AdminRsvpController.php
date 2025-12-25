@@ -45,6 +45,12 @@ class AdminRsvpController extends Controller
         
         $query = Rsvp::find()->with('invitation');
 
+        // Filter by user ownership for client users
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $query->joinWith('invitation')
+                ->andWhere(['invitation.user_id' => Yii::$app->user->id]);
+        }
+
         // Normalize 'all' or empty to null
         if ($attendance === 'all' || $attendance === '' || $attendance === null) {
             $attendance = null;
@@ -60,7 +66,7 @@ class AdminRsvpController extends Controller
 
         // Filter by invitation
         if ($invitation_id !== null) {
-            $query->andWhere(['invitation_id' => $invitation_id]);
+            $query->andWhere(['rsvp.invitation_id' => $invitation_id]);
         }
 
         $dataProvider = new ActiveDataProvider([
@@ -89,15 +95,25 @@ class AdminRsvpController extends Controller
         ]);
 
         // Get statistics
+        $statsQuery = Rsvp::find();
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $statsQuery->joinWith('invitation')
+                ->andWhere(['invitation.user_id' => Yii::$app->user->id]);
+        }
+        
         $stats = [
-            'total' => Rsvp::find()->count(),
-            'attending' => Rsvp::find()->where(['attendance' => Rsvp::ATTENDANCE_ATTENDING])->count(),
-            'not_attending' => Rsvp::find()->where(['attendance' => Rsvp::ATTENDANCE_NOT_ATTENDING])->count(),
-            'total_guests' => Rsvp::find()->where(['attendance' => Rsvp::ATTENDANCE_ATTENDING])->sum('guests_count') ?: 0,
+            'total' => (clone $statsQuery)->count(),
+            'attending' => (clone $statsQuery)->where(['attendance' => Rsvp::ATTENDANCE_ATTENDING])->count(),
+            'not_attending' => (clone $statsQuery)->where(['attendance' => Rsvp::ATTENDANCE_NOT_ATTENDING])->count(),
+            'total_guests' => (clone $statsQuery)->where(['attendance' => Rsvp::ATTENDANCE_ATTENDING])->sum('guests_count') ?: 0,
         ];
 
         // Get invitations for filter dropdown
-        $invitations = Invitation::find()->orderBy(['title' => SORT_ASC])->all();
+        $invitationsQuery = Invitation::find();
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $invitationsQuery->andWhere(['user_id' => Yii::$app->user->id]);
+        }
+        $invitations = $invitationsQuery->orderBy(['title' => SORT_ASC])->all();
 
         return $this->render('index', [
             'dataProvider' => $dataProvider,
@@ -144,13 +160,19 @@ class AdminRsvpController extends Controller
     {
         $query = Rsvp::find()->with('invitation');
 
+        // Filter by user ownership for client users
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $query->joinWith('invitation')
+                ->andWhere(['invitation.user_id' => Yii::$app->user->id]);
+        }
+
         // Apply same filters as index
         if ($attendance !== null && in_array($attendance, [Rsvp::ATTENDANCE_ATTENDING, Rsvp::ATTENDANCE_NOT_ATTENDING])) {
             $query->andWhere(['attendance' => $attendance]);
         }
 
         if ($invitation_id !== null) {
-            $query->andWhere(['invitation_id' => $invitation_id]);
+            $query->andWhere(['rsvp.invitation_id' => $invitation_id]);
         }
 
         $rsvps = $query->orderBy(['created_at' => SORT_DESC])->all();
@@ -205,7 +227,17 @@ class AdminRsvpController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Rsvp::findOne($id)) !== null) {
+        $query = Rsvp::find()->where(['rsvp.id' => $id]);
+
+        // Filter by user ownership for client users
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $query->joinWith('invitation')
+                ->andWhere(['invitation.user_id' => Yii::$app->user->id]);
+        }
+
+        $model = $query->one();
+
+        if ($model !== null) {
             return $model;
         }
 

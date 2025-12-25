@@ -5,6 +5,7 @@ $db = require __DIR__ . '/db.php';
 
 $config = [
     'id' => 'basic',
+    'name' => 'Yadevs',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'timeZone' => 'Asia/Jakarta',
@@ -23,6 +24,17 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
+        ],
+        'authClientCollection' => [
+            'class' => 'yii\authclient\Collection',
+            'clients' => [
+                'google' => [
+                    'class' => 'yii\authclient\clients\Google',
+                    'clientId' => getenv('GOOGLE_CLIENT_ID') ?: 'YOUR_GOOGLE_CLIENT_ID',
+                    'clientSecret' => getenv('GOOGLE_CLIENT_SECRET') ?: 'YOUR_GOOGLE_CLIENT_SECRET',
+                    'returnUrl' => 'http://localhost/wedding_apps/web/auth/callback',
+                ],
+            ],
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -50,6 +62,7 @@ $config = [
                 // Auth routes (must be before generic rules)
                 'auth/login' => 'auth/login',
                 'auth/logout' => 'auth/logout',
+                'auth/callback' => 'auth/callback',
                 
                 // RSVP routes
                 'rsvp/<id:\d+>' => 'rsvp/index',

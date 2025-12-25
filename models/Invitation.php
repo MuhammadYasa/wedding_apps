@@ -15,7 +15,9 @@ use yii\helpers\Url;
  * @property string $title
  * @property string $slug
  * @property string $bride_name
+ * @property string $bride_nickname
  * @property string $groom_name
+ * @property string $groom_nickname
  * @property string $bride_father
  * @property string $bride_mother
  * @property string $groom_father
@@ -32,12 +34,14 @@ use yii\helpers\Url;
  * @property string $description
  * @property string $theme
  * @property bool $is_active
+ * @property int $user_id
  * @property int $created_at
  * @property int $updated_at
  *
  * @property Gallery[] $galleries
  * @property Rsvp[] $rsvps
  * @property Guest[] $guests
+ * @property User $user
  */
 class Invitation extends ActiveRecord
 {
@@ -69,6 +73,13 @@ class Invitation extends ActiveRecord
                 'slugAttribute' => 'slug',
                 'immutable' => false,
                 'ensureUnique' => true,
+                'value' => function ($model) {
+                    // Generate slug from nicknames if available
+                    if (!empty($model->bride_nickname) && !empty($model->groom_nickname)) {
+                        return $model->bride_nickname . '-' . $model->groom_nickname;
+                    }
+                    return $model->title;
+                },
             ],
         ];
     }
@@ -80,14 +91,18 @@ class Invitation extends ActiveRecord
     {
         return [
             [['title', 'bride_name', 'groom_name', 'event_date'], 'required'],
-            [['title', 'bride_name', 'groom_name', 'bride_father', 'bride_mother', 
+            [['bride_nickname', 'groom_nickname'], 'required', 'message' => 'Nama panggilan harus diisi'],
+            [['title'], 'string', 'max' => 500],
+            [['bride_name', 'groom_name', 'bride_father', 'bride_mother', 
               'groom_father', 'groom_mother'], 'string', 'max' => 255],
+            [['bride_nickname', 'groom_nickname'], 'string', 'max' => 100],
             [['slug', 'event_time'], 'string', 'max' => 50],
             [['venue', 'venue_address', 'story', 'description'], 'string'],
             [['venue_map_url'], 'string', 'max' => 500],
             [['venue_lat', 'venue_lng'], 'number'],
-            [['event_date', 'created_at', 'updated_at'], 'integer'],
+            [['event_date', 'created_at', 'updated_at', 'user_id'], 'integer'],
             [['is_active'], 'boolean'],
+            [['is_active'], 'default', 'value' => 1],
             [['theme'], 'in', 'range' => [
                 self::THEME_DEFAULT, 
                 self::THEME_ELEGANT, 
@@ -109,7 +124,9 @@ class Invitation extends ActiveRecord
             'title' => 'Judul Undangan',
             'slug' => 'Slug',
             'bride_name' => 'Nama Mempelai Wanita',
+            'bride_nickname' => 'Nama Panggilan Mempelai Wanita',
             'groom_name' => 'Nama Mempelai Pria',
+            'groom_nickname' => 'Nama Panggilan Mempelai Pria',
             'bride_father' => 'Ayah Mempelai Wanita',
             'bride_mother' => 'Ibu Mempelai Wanita',
             'groom_father' => 'Ayah Mempelai Pria',
@@ -171,6 +188,16 @@ class Invitation extends ActiveRecord
     public function getGuests()
     {
         return $this->hasMany(Guest::class, ['invitation_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[User]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUser()
+    {
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     /**

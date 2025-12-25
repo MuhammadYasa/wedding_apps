@@ -59,21 +59,24 @@ $this->title = 'Login Admin';
 
                         <?php ActiveForm::end(); ?>
 
-                        <!-- Info -->
-                        <div class="mt-4 text-center">
-                            <small class="text-muted">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Default: admin/admin
-                            </small>
+                        <!-- Divider -->
+                        <div class="position-relative my-4">
+                            <hr>
+                            <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">
+                                atau
+                            </span>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Back to Home -->
-                <div class="text-center mt-3">
-                    <?= Html::a('<i class="bi bi-house-fill me-1"></i> Kembali ke Beranda', ['/site/index'], [
-                        'class' => 'btn btn-outline-secondary btn-sm'
-                    ]) ?>
+                        <!-- Google Login -->
+                        <div class="d-grid">
+                            <?= Html::a(
+                                '<i class="bi bi-google me-2"></i> Continue with Google',
+                                ['/auth/callback', 'authclient' => 'google'],
+                                ['class' => 'btn btn-google btn-lg']
+                            ) ?>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,5 +109,38 @@ $this->title = 'Login Admin';
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     transition: all 0.3s ease;
+}
+
+.auth-login .btn-google {
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.auth-login .btn-google:hover {
+    background-color: #357ae8;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
+    transition: all 0.3s ease;
+}
+
+.auth-login .btn-google i {
+    background-color: white;
+    color: #4285f4;
+    border-radius: 50%;
+    padding: 8px;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+.auth-login hr {
+    margin: 0;
 }
 </style>

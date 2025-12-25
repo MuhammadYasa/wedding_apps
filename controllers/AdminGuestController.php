@@ -46,13 +46,22 @@ class AdminGuestController extends Controller
      */
     public function actionIndex()
     {
-        $guests = Guest::find()
-            ->with('invitation')
-            ->orderBy(['created_at' => SORT_DESC])
-            ->all();
+        $query = Guest::find()->with('invitation');
+
+        // Filter by user ownership for client users
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $query->joinWith('invitation')
+                ->andWhere(['invitation.user_id' => Yii::$app->user->id]);
+        }
+
+        $guests = $query->orderBy(['created_at' => SORT_DESC])->all();
         
-        // Get all invitations for dropdown if needed
-        $invitations = Invitation::find()->orderBy(['created_at' => SORT_DESC])->all();
+        // Get invitations based on user role
+        $invitationsQuery = Invitation::find()->orderBy(['created_at' => SORT_DESC]);
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $invitationsQuery->andWhere(['user_id' => Yii::$app->user->id]);
+        }
+        $invitations = $invitationsQuery->all();
 
         return $this->render('index', [
             'guests' => $guests,
@@ -83,9 +92,20 @@ class AdminGuestController extends Controller
     {
         $model = new Guest();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Tamu berhasil ditambahkan.');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            // Validate that client can only add guests to their own invitations
+            if (!Yii::$app->user->identity->isSuperUser()) {
+                $invitation = Invitation::findOne(['id' => $model->invitation_id, 'user_id' => Yii::$app->user->id]);
+                if (!$invitation) {
+                    Yii::$app->session->setFlash('error', 'Anda tidak memiliki akses ke undangan ini.');
+                    return $this->redirect(['index']);
+                }
+            }
+            
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Tamu berhasil ditambahkan.');
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('create', [
@@ -104,9 +124,20 @@ class AdminGuestController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Data tamu berhasil diperbarui.');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            // Validate that client can only update guests from their own invitations
+            if (!Yii::$app->user->identity->isSuperUser()) {
+                $invitation = Invitation::findOne(['id' => $model->invitation_id, 'user_id' => Yii::$app->user->id]);
+                if (!$invitation) {
+                    Yii::$app->session->setFlash('error', 'Anda tidak memiliki akses ke undangan ini.');
+                    return $this->redirect(['index']);
+                }
+            }
+            
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Data tamu berhasil diperbarui.');
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('update', [
@@ -138,7 +169,17 @@ class AdminGuestController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Guest::findOne(['id' => $id])) !== null) {
+        $query = Guest::find()->where(['guest.id' => $id]);
+
+        // Filter by user ownership for client users
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $query->joinWith('invitation')
+                ->andWhere(['invitation.user_id' => Yii::$app->user->id]);
+        }
+
+        $model = $query->one();
+
+        if ($model !== null) {
             return $model;
         }
 

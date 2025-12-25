@@ -61,6 +61,27 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        // If user is logged in as client, redirect to their invitation
+        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->isClient()) {
+            $invitation = \app\models\Invitation::find()
+                ->where(['user_id' => Yii::$app->user->id])
+                ->one();
+            
+            if ($invitation) {
+                // Get first guest for this invitation to get token
+                $guest = \app\models\Guest::find()
+                    ->where(['invitation_id' => $invitation->id])
+                    ->one();
+                
+                if ($guest) {
+                    return $this->redirect(['/invitation/view', 'slug' => $invitation->slug, 'token' => $guest->token]);
+                }
+                
+                // If no guest yet, show invitation without guest features
+                return $this->redirect(['/invitation/view', 'slug' => $invitation->slug]);
+            }
+        }
+        
         return $this->render('index');
     }
 

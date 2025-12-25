@@ -53,7 +53,18 @@ class AdminGalleryController extends Controller
         $invitation = null;
         $query = Gallery::find();
         
-        if ($invitation_id !== null) {
+        // Auto-load invitation for client users
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $clientInvitation = Invitation::find()
+                ->where(['user_id' => Yii::$app->user->id])
+                ->one();
+            
+            if ($clientInvitation) {
+                $invitation = $clientInvitation;
+                $query->where(['invitation_id' => $clientInvitation->id]);
+            }
+        } elseif ($invitation_id !== null) {
+            // Super user with filter
             $invitation = $this->findInvitation($invitation_id);
             $query->where(['invitation_id' => $invitation_id]);
         }
@@ -65,8 +76,12 @@ class AdminGalleryController extends Controller
             ],
         ]);
 
-        // Get invitations for filter dropdown
-        $invitations = Invitation::find()->orderBy(['title' => SORT_ASC])->all();
+        // Get invitations for filter dropdown (super user only)
+        $invitationsQuery = Invitation::find();
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $invitationsQuery->andWhere(['user_id' => Yii::$app->user->id]);
+        }
+        $invitations = $invitationsQuery->orderBy(['title' => SORT_ASC])->all();
 
         return $this->render('index', [
             'invitation' => $invitation,
@@ -359,7 +374,16 @@ class AdminGalleryController extends Controller
      */
     protected function findInvitation($id)
     {
-        if (($model = Invitation::findOne(['id' => $id])) !== null) {
+        $query = Invitation::find()->where(['id' => $id]);
+
+        // Filter by user ownership for client users
+        if (!Yii::$app->user->identity->isSuperUser()) {
+            $query->andWhere(['user_id' => Yii::$app->user->id]);
+        }
+
+        $model = $query->one();
+
+        if ($model !== null) {
             return $model;
         }
 

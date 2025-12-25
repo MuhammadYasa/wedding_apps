@@ -49,6 +49,27 @@ class LoginForm extends Model
 
             if (!$user || !$user->validatePassword($this->password)) {
                 $this->addError($attribute, 'Incorrect username or password.');
+                return;
+            }
+            
+            // Status validation only applies to non-super users
+            if (!$user->isSuperUser()) {
+                // Check if user is inactive
+                if (!$user->is_active) {
+                    $this->addError($attribute, 'Akun Anda tidak aktif. Silakan hubungi administrator.');
+                    return;
+                }
+                
+                // Check if user is client and has inactive invitation
+                if ($user->isClient()) {
+                    $invitation = Invitation::find()
+                        ->where(['user_id' => $user->id])
+                        ->one();
+                    
+                    if ($invitation && !$invitation->is_active) {
+                        $this->addError($attribute, 'Akun Anda sedang tidak aktif. Silakan hubungi administrator.');
+                    }
+                }
             }
         }
     }

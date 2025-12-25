@@ -37,12 +37,26 @@ $this->params['breadcrumbs'][] = 'Edit';
                 'placeholder' => '08123456789'
             ])->label('<i class="bi bi-telephone-fill me-1"></i> Telepon') ?>
 
-            <?= $form->field($model, 'invitation_id')->dropDownList(
-                \yii\helpers\ArrayHelper::map(Invitation::find()->all(), 'id', function($invitation) {
-                    return $invitation->bride_name . ' & ' . $invitation->groom_name;
-                }),
-                ['prompt' => 'Pilih Undangan']
-            )->label('<i class="bi bi-heart-fill me-1"></i> Undangan') ?>
+            <?php
+            // Auto-assign invitation for client, show dropdown for super user
+            if (Yii::$app->user->identity->isSuperUser()) {
+                $invitations = Invitation::find()->all();
+                echo $form->field($model, 'invitation_id')->dropDownList(
+                    \yii\helpers\ArrayHelper::map($invitations, 'id', function($invitation) {
+                        return $invitation->bride_name . ' & ' . $invitation->groom_name;
+                    }),
+                    ['prompt' => 'Pilih Undangan']
+                )->label('<i class="bi bi-heart-fill me-1"></i> Undangan');
+            } else {
+                // Client: auto-assign their invitation
+                $invitation = Invitation::find()
+                    ->where(['user_id' => Yii::$app->user->id])
+                    ->one();
+                if ($invitation) {
+                    echo Html::activeHiddenInput($model, 'invitation_id', ['value' => $invitation->id]);
+                }
+            }
+            ?>
 
             <div class="form-group mt-4">
                 <?= Html::submitButton('<i class="bi bi-check-circle me-1"></i> Simpan Perubahan', ['class' => 'btn btn-primary']) ?>
