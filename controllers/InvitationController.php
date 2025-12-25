@@ -8,6 +8,7 @@ use app\models\Guest;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use app\filters\RateLimiter;
 
 /**
  * InvitationController handles public invitation pages
@@ -26,6 +27,11 @@ class InvitationController extends Controller
                     'delete' => ['POST'],
                 ],
             ],
+            'rateLimiter' => [
+                'class' => RateLimiter::class,
+                'only' => ['rsvp', 'send-message'],
+                'type' => 'rsvp',
+            ],
         ];
     }
 
@@ -35,17 +41,35 @@ class InvitationController extends Controller
      * @param string $slug Invitation slug (friendly URL)
      * @param string|null $token Guest token for personalized view
      * @param string|null $to Guest name for WhatsApp shared invitation
+     * @param string|null $preview_theme Theme to preview (for testing purposes)
      * @return string
      * @throws NotFoundHttpException
      */
-    public function actionView($slug, $token = null, $to = null)
+    public function actionView($slug, $token = null, $to = null, $preview_theme = null)
     {
-        // Find invitation by slug
-        $invitation = $this->findInvitationBySlug($slug);
+        // Find invitation by slug with eager loading
+        $invitation = Invitation::find()
+            ->where(['slug' => $slug])
+            ->with(['galleries' => function($query) {
+                $query->orderBy(['sort_order' => SORT_ASC, 'created_at' => SORT_DESC]);
+            }])
+            ->with(['rsvps' => function($query) {
+                $query->orderBy(['created_at' => SORT_DESC])->limit(10);
+            }])
+            ->one();
+
+        if (!$invitation) {
+            throw new NotFoundHttpException('Undangan tidak ditemukan.');
+        }
 
         // Check if invitation is active
         if (!$invitation->is_active) {
             throw new NotFoundHttpException('Undangan tidak ditemukan atau sudah tidak aktif.');
+        }
+
+        // Theme preview for testing (override actual theme)
+        if ($preview_theme && in_array($preview_theme, ['default', 'elegant', 'rustic', 'modern'])) {
+            $invitation->theme = $preview_theme;
         }
 
         // Guest personalization (if token or 'to' parameter provided)
@@ -63,14 +87,9 @@ class InvitationController extends Controller
             $guest->markAsViewed();
         }
 
-        // Load galleries
-        $galleries = $invitation->getGalleries()->all();
-
-        // Load recent RSVPs (for display testimonials)
-        $recentRsvps = $invitation->getRsvps()
-            ->orderBy(['created_at' => SORT_DESC])
-            ->limit(10)
-            ->all();
+        // Use eager loaded galleries and RSVPs
+        $galleries = $invitation->galleries;
+        $recentRsvps = $invitation->rsvps;
 
         // Check if guest already submitted RSVP
         $existingRsvp = null;
