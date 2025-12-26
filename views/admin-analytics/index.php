@@ -221,8 +221,11 @@ $this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.um
 
 <?php
 // Prepare data for charts
-$trendDates = array_column($rsvpTrend, 'date');
-$trendCounts = array_column($rsvpTrend, 'count');
+$trendDates = json_encode(array_column($rsvpTrend, 'date'));
+$trendCounts = json_encode(array_column($rsvpTrend, 'count'));
+$attending = $stats['attending'];
+$notAttending = $stats['not_attending'];
+$maybe = $stats['maybe'];
 
 $js = <<<JS
 // RSVP Trend Chart
@@ -230,10 +233,10 @@ const trendCtx = document.getElementById('rsvpTrendChart').getContext('2d');
 new Chart(trendCtx, {
     type: 'line',
     data: {
-        labels: <?= json_encode($trendDates) ?>,
+        labels: {$trendDates},
         datasets: [{
             label: 'RSVPs',
-            data: <?= json_encode($trendCounts) ?>,
+            data: {$trendCounts},
             borderColor: 'rgb(13, 110, 253)',
             backgroundColor: 'rgba(13, 110, 253, 0.1)',
             tension: 0.4,
@@ -266,7 +269,7 @@ new Chart(attendanceCtx, {
     data: {
         labels: ['Attending', 'Not Attending', 'Maybe'],
         datasets: [{
-            data: [<?= $stats['attending'] ?>, <?= $stats['not_attending'] ?>, <?= $stats['maybe'] ?>],
+            data: [{$attending}, {$notAttending}, {$maybe}],
             backgroundColor: [
                 'rgba(25, 135, 84, 0.8)',
                 'rgba(220, 53, 69, 0.8)',

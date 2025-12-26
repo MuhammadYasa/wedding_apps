@@ -104,7 +104,7 @@ class AdminAnalyticsController extends Controller
             ->where(['invitation_id' => $invitationIds])
             ->orderBy(['created_at' => SORT_DESC])
             ->limit(10)
-            ->with(['invitation', 'guest'])
+            ->with(['invitation'])
             ->all();
 
         return $this->render('index', [
@@ -262,12 +262,11 @@ class AdminAnalyticsController extends Controller
             
             $rsvps = \app\models\Rsvp::find()
                 ->where(['invitation_id' => $id])
-                ->with('guest')
                 ->orderBy(['created_at' => SORT_DESC])
                 ->all();
             
             foreach ($rsvps as $rsvp) {
-                $sheet->setCellValue('A' . $row, $rsvp->guest->name ?? 'Unknown');
+                $sheet->setCellValue('A' . $row, $rsvp->name);
                 $sheet->setCellValue('B' . $row, ucfirst($rsvp->attendance));
                 $sheet->setCellValue('C' . $row, $rsvp->message ?: '-');
                 $sheet->setCellValue('D' . $row, date('Y-m-d H:i', $rsvp->created_at));
