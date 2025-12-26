@@ -511,6 +511,67 @@ $this->registerJs("
 </section>
 <?php endif; ?>
 
+<!-- Wishes Section -->
+<section class="wishes-section" id="wishes">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2>Ucapan & Doa</h2>
+            <div class="divider-heart">
+                <i class="bi bi-journal-heart-fill"></i>
+            </div>
+            <p class="text-muted">Tinggalkan ucapan dan doa terbaik untuk kami</p>
+        </div>
+        
+        <div class="text-center mt-4 mb-5">
+            <?= Html::a('<i class="bi bi-pen-fill me-2"></i> Tulis Ucapan', 
+                ['wish/create', 'id' => $invitation->id], 
+                ['class' => 'btn btn-primary btn-lg']) ?>
+        </div>
+        
+        <?php
+        $recentWishes = \app\models\Wish::getApprovedWishes($invitation->id, 6);
+        if (!empty($recentWishes)):
+        ?>
+            <div class="row g-4">
+                <?php foreach ($recentWishes as $wish): ?>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm wish-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start mb-3">
+                                    <div class="avatar-circle me-3">
+                                        <?= strtoupper(mb_substr($wish->name, 0, 1)) ?>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1"><?= Html::encode($wish->name) ?></h6>
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock"></i> <?= Yii::$app->formatter->asRelativeTime($wish->created_at) ?>
+                                        </small>
+                                    </div>
+                                </div>
+                                <p class="wish-message mb-0">
+                                    <i class="bi bi-quote text-muted"></i>
+                                    <?= nl2br(Html::encode($wish->getShortMessage(150))) ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <div class="text-center mt-4">
+                <?= Html::a('Lihat Semua Ucapan <i class="bi bi-arrow-right ms-2"></i>', 
+                    ['wish/index', 'id' => $invitation->id], 
+                    ['class' => 'btn btn-outline-primary']) ?>
+            </div>
+        <?php else: ?>
+            <div class="text-center">
+                <i class="bi bi-inbox display-3 text-muted"></i>
+                <p class="text-muted mt-3">Belum ada ucapan. Jadilah yang pertama!</p>
+            </div>
+        <?php endif; ?>
+    </div>
+</section>
+
 <!-- Live Chat Section -->
 <section class="chat-section" id="chat">
     <div class="container">

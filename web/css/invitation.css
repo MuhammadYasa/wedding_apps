@@ -926,6 +926,52 @@ section:nth-child(even) {
 }
 
 /* ========================================
+   Wishes Section
+   ======================================== */
+.wishes-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #fff5eb 0%, #fde8d7 100%);
+}
+
+.wishes-section .wish-card .card {
+  border: none;
+  border-radius: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.wishes-section .wish-card .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.wishes-section .avatar-circle {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d4a574, #8b7355);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.wishes-section .wish-message {
+  font-style: italic;
+  color: #555;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.wishes-section .wish-message .bi-quote {
+  font-size: 1.5rem;
+  opacity: 0.3;
+}
+
+/* ========================================
    Live Chat Section
    ======================================== */
 .chat-section {

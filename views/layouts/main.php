@@ -154,6 +154,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
                 ['label' => '<i class="bi bi-qr-code-scan me-1"></i> Check-In', 'url' => ['/check-in/index'], 'encode' => false, 'active' => $controller === 'check-in'] : null,
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
+                ['label' => '<i class="bi bi-journal-heart me-1"></i> Ucapan', 'url' => ['/admin-wish/index'], 'encode' => false, 'active' => $controller === 'admin-wish'] : null,
+            (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
                 ['label' => '<i class="bi bi-calendar-check me-1"></i> Kelola RSVP', 'url' => ['/admin-rsvp/index'], 'encode' => false, 'active' => $controller === 'admin-rsvp'] : null,
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
                 ['label' => '<i class="bi bi-box-arrow-right me-1"></i> Logout', 
@@ -173,6 +175,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 ['label' => '<i class="bi bi-images me-1"></i> Gallery', 'url' => ['/admin-gallery/index'], 'encode' => false, 'active' => $controller === 'admin-gallery'] : null,
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isClient()) ? 
                 ['label' => '<i class="bi bi-qr-code-scan me-1"></i> Check-In', 'url' => ['/check-in/index'], 'encode' => false, 'active' => $controller === 'check-in'] : null,
+            (!Yii::$app->user->isGuest && Yii::$app->user->identity->isClient()) ? 
+                ['label' => '<i class="bi bi-journal-heart me-1"></i> Ucapan', 'url' => ['/admin-wish/index'], 'encode' => false, 'active' => $controller === 'admin-wish'] : null,
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isClient()) ? 
                 ['label' => '<i class="bi bi-calendar-check me-1"></i> RSVP', 'url' => ['/admin-rsvp/index'], 'encode' => false, 'active' => $controller === 'admin-rsvp'] : null,
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isClient()) ? 
