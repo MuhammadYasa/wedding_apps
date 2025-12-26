@@ -6,7 +6,16 @@
     <br>
 </p>
 
+[![CI/CD Pipeline](https://github.com/MuhammadYasa/wedding_apps/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/MuhammadYasa/wedding_apps/actions)
+[![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
+[![Yii2 Framework](https://img.shields.io/badge/Yii2-2.0.53-green)](https://www.yiiframework.com/)
+[![License](https://img.shields.io/badge/license-MIT-orange)](LICENSE.md)
+
 Aplikasi undangan pernikahan digital berbasis Yii2 Framework dengan Role-Based Access Control (RBAC). Aplikasi ini memungkinkan Anda membuat dan mengelola undangan pernikahan online dengan fitur RSVP, gallery, personalized links untuk WhatsApp, Google OAuth authentication, dan multi-tenant admin dashboard.
+
+📖 **[Read Development Journey & Challenges](CHALLENGES.md)** - Lihat technical challenges dan solutions yang diimplementasikan dalam project ini.
+
+---
 
 ## ✨ Fitur Utama
 
