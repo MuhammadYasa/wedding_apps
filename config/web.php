@@ -89,8 +89,23 @@ $config = [
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@app/mail',
-            // send all mails to a file by default.
-            'useFileTransport' => true,
+            // Use file transport in dev, SMTP in production
+            'useFileTransport' => YII_ENV_DEV,
+            'transport' => YII_ENV_DEV ? null : [
+                'scheme' => getenv('MAIL_SCHEME') ?: 'smtp',
+                'host' => getenv('MAIL_HOST') ?: 'smtp.gmail.com',
+                'username' => getenv('MAIL_USERNAME') ?: 'your-email@gmail.com',
+                'password' => getenv('MAIL_PASSWORD') ?: 'your-app-password',
+                'port' => getenv('MAIL_PORT') ?: 587,
+                'encryption' => getenv('MAIL_ENCRYPTION') ?: 'tls',
+                'streamOptions' => [
+                    'ssl' => [
+                        'allow_self_signed' => true,
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                    ],
+                ],
+            ],
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,

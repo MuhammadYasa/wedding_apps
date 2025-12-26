@@ -196,6 +196,13 @@ class InvitationController extends Controller
             }
 
             if ($model->save()) {
+                // Send confirmation email
+                try {
+                    \app\helpers\EmailHelper::sendRsvpConfirmation($model, $invitation);
+                } catch (\Exception $e) {
+                    Yii::error("Failed to send RSVP confirmation email: " . $e->getMessage(), __METHOD__);
+                }
+                
                 Yii::$app->session->setFlash('success', 'Terima kasih! Konfirmasi kehadiran Anda telah kami terima.');
                 // Redirect with 'to' parameter using guest name
                 return $this->redirect(['view', 'slug' => $invitation->slug, 'to' => $guest->name]);
