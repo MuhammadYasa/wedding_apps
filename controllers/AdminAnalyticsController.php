@@ -50,7 +50,7 @@ class AdminAnalyticsController extends Controller
 
         // Get all invitations for the user
         $invitations = Invitation::find()
-            ->where(['created_by' => $user->id])
+            ->where(['user_id' => $user->id])
             ->all();
 
         $invitationIds = array_map(function($inv) {
@@ -288,7 +288,7 @@ class AdminAnalyticsController extends Controller
             $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
             
             $invitations = \app\models\Invitation::find()
-                ->where(['created_by' => $user->id])
+                ->where(['user_id' => $user->id])
                 ->all();
             
             $row = 3;
@@ -349,7 +349,7 @@ class AdminAnalyticsController extends Controller
     {
         $user = Yii::$app->user->identity;
         
-        if (($model = Invitation::findOne(['id' => $id, 'created_by' => $user->id])) !== null) {
+        if (($model = Invitation::findOne(['id' => $id, 'user_id' => $user->id])) !== null) {
             return $model;
         }
 

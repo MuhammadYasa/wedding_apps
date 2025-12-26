@@ -5,6 +5,7 @@ use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $invitation app\models\Invitation */
+/* @var $guest app\models\Guest|null */
 
 $this->title = $invitation->title . ' - Printable';
 
@@ -143,8 +144,8 @@ $this->registerCss("
             <p><strong>Tanggal:</strong> <?= Yii::$app->formatter->asDate($invitation->event_date, 'php:l, d F Y') ?></p>
             <p><strong>Waktu:</strong> <?= Html::encode($invitation->event_time) ?> WIB</p>
             <p><strong>Tempat:</strong> <?= Html::encode($invitation->venue) ?></p>
-            <?php if ($invitation->address): ?>
-                <p><strong>Alamat:</strong> <?= nl2br(Html::encode($invitation->address)) ?></p>
+            <?php if ($invitation->venue_address): ?>
+                <p><strong>Alamat:</strong> <?= nl2br(Html::encode($invitation->venue_address)) ?></p>
             <?php endif; ?>
         </div>
     </div>
@@ -160,12 +161,12 @@ $this->registerCss("
     <?php endif; ?>
 
     <!-- Maps Link -->
-    <?php if ($invitation->maps_link): ?>
+    <?php if ($invitation->venue_map_url): ?>
         <div class="print-section">
             <h2>Lokasi</h2>
             <p><strong>Google Maps:</strong></p>
             <p style="word-break: break-all; font-size: 10pt;">
-                <?= Html::encode($invitation->maps_link) ?>
+                <?= Html::encode($invitation->venue_map_url) ?>
             </p>
         </div>
     <?php endif; ?>
@@ -197,12 +198,12 @@ $this->registerCss("
 </div>
 
 <?php
-// Add QR Code generation
-$invitationUrl = Url::to(['invitation/view', 'slug' => $invitation->slug], true);
+// Add QR Code generation - link to thank you page
+$thankyouUrl = Url::to(['invitation/thankyou', 'slug' => $invitation->slug, 'to' => $guest->name ?? 'Tamu'], true);
 $this->registerJsFile('https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js', ['position' => \yii\web\View::POS_HEAD]);
 $this->registerJs("
     new QRCode(document.getElementById('qrcode'), {
-        text: '{$invitationUrl}',
+        text: '{$thankyouUrl}',
         width: 200,
         height: 200,
         colorDark: '#8b7355',

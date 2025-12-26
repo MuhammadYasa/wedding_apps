@@ -7,8 +7,11 @@ use app\models\Invitation;
 use app\models\Guest;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\filters\RateLimiter;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 /**
  * InvitationController handles public invitation pages
@@ -47,6 +50,9 @@ class InvitationController extends Controller
      */
     public function actionView($slug, $token = null, $to = null, $preview_theme = null)
     {
+        // Use invitation layout (no navbar/footer)
+        $this->layout = 'invitation';
+        
         // Find invitation by slug with eager loading
         $invitation = Invitation::find()
             ->where(['slug' => $slug])
@@ -326,10 +332,11 @@ class InvitationController extends Controller
      * Display printable version of invitation
      * 
      * @param string $slug Invitation slug
+     * @param string|null $token Guest token for personalized print
      * @return string
      * @throws NotFoundHttpException
      */
-    public function actionPrint($slug)
+    public function actionPrint($slug, $token = null)
     {
         $invitation = $this->findInvitationBySlug($slug);
 
@@ -337,11 +344,85 @@ class InvitationController extends Controller
             throw new NotFoundHttpException('Undangan tidak ditemukan atau sudah tidak aktif.');
         }
 
+        // Find guest by token if provided
+        $guest = null;
+        if ($token) {
+            $guest = Guest::findOne(['token' => $token, 'invitation_id' => $invitation->id]);
+        }
+
         $this->layout = 'print'; // Use special print layout (minimal)
 
         return $this->render('print', [
             'invitation' => $invitation,
+            'guest' => $guest,
         ]);
+    }
+
+    /**
+     * Thank you page after QR code scan
+     * 
+     * @param string $slug Invitation slug
+     * @param string|null $to Guest name
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionThankyou($slug, $to = null)
+    {
+        $invitation = $this->findInvitationBySlug($slug);
+        
+        // Check if invitation is active
+        if (!$invitation->is_active) {
+            throw new NotFoundHttpException('Undangan tidak aktif.');
+        }
+
+        $guestName = $to;
+
+        // Use minimal layout without navbar and footer
+        $this->layout = 'thankyou';
+
+        return $this->render('thankyou', [
+            'invitation' => $invitation,
+            'guestName' => $guestName,
+        ]);
+    }
+
+    /**
+     * Generate QR Code image for guest
+     * 
+     * @param string $slug
+     * @param string $token
+     * @return Response
+     * @throws NotFoundHttpException
+     */
+    public function actionQrcode($slug, $token)
+    {
+        $invitation = $this->findInvitationBySlug($slug);
+        $guest = Guest::findOne(['token' => $token, 'invitation_id' => $invitation->id]);
+
+        if (!$guest) {
+            throw new NotFoundHttpException('Guest tidak ditemukan.');
+        }
+
+        // Generate thank you URL
+        $thankyouUrl = \yii\helpers\Url::to([
+            'invitation/thankyou', 
+            'slug' => $invitation->slug, 
+            'to' => $guest->name
+        ], true);
+
+        // Create QR Code
+        $qrCode = QrCode::create($thankyouUrl)
+            ->setSize(300)
+            ->setMargin(10);
+
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
+
+        // Return as image
+        Yii::$app->response->format = Response::FORMAT_RAW;
+        Yii::$app->response->headers->set('Content-Type', 'image/png');
+        
+        return $result->getString();
     }
 
     /**

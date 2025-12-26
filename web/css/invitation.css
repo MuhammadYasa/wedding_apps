@@ -101,23 +101,28 @@ body {
 
 /* Animation Classes */
 .animate-fade-in-up {
-  animation: fadeInUp 0.8s ease-out;
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
 }
 
 .animate-fade-in {
-  animation: fadeIn 1s ease-out;
+  animation: fadeIn 1s ease-out forwards;
+  opacity: 0;
 }
 
 .animate-slide-left {
-  animation: slideInLeft 0.8s ease-out;
+  animation: slideInLeft 0.8s ease-out forwards;
+  opacity: 0;
 }
 
 .animate-slide-right {
-  animation: slideInRight 0.8s ease-out;
+  animation: slideInRight 0.8s ease-out forwards;
+  opacity: 0;
 }
 
 .animate-zoom-in {
-  animation: zoomIn 0.8s ease-out;
+  animation: zoomIn 0.8s ease-out forwards;
+  opacity: 0;
 }
 
 /* Transition Utilities */
@@ -135,7 +140,8 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  animation: fadeIn 1.5s ease-out;
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out forwards;
 }
 
 .hero-overlay {
@@ -149,7 +155,8 @@ body {
     rgba(0, 0, 0, 0.3),
     rgba(0, 0, 0, 0.5)
   );
-  animation: fadeIn 1s ease-out;
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
 }
 
 .hero-content {
@@ -162,8 +169,8 @@ body {
 .guest-greeting {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
-  opacity: 0.9;
-  animation: fadeInUp 0.8s ease-out 0.2s both;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 0.2s forwards;
 }
 
 .guest-name {
@@ -171,14 +178,15 @@ body {
   font-weight: 600;
   margin-bottom: 1rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  animation: fadeInUp 0.8s ease-out 0.4s both;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 0.4s forwards;
 }
 
 .guest-message {
   font-size: 1.1rem;
   margin-bottom: 2rem;
-  opacity: 0.9;
-  animation: fadeInUp 0.8s ease-out 0.6s both;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 0.6s forwards;
 }
 
 .divider {
@@ -186,8 +194,8 @@ body {
   height: 2px;
   background: var(--white);
   margin: 2rem auto;
-  opacity: 0.7;
-  animation: fadeInUp 0.8s ease-out 0.8s both;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 0.8s forwards;
 }
 
 .couple-names {
@@ -196,7 +204,8 @@ body {
   margin: 2rem 0;
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
   line-height: 1.2;
-  animation: fadeInUp 1s ease-out 1s both;
+  opacity: 0;
+  animation: fadeInUp 1s ease-out 1s forwards;
 }
 
 .couple-names .ampersand {
@@ -211,7 +220,8 @@ body {
 .wedding-date {
   font-size: 1.5rem;
   margin: 2rem 0;
-  animation: fadeInUp 0.8s ease-out 1.2s both;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 1.2s forwards;
 }
 
 .wedding-date i {
@@ -220,7 +230,8 @@ body {
 
 .hero-actions {
   margin-top: 3rem;
-  animation: fadeInUp 0.8s ease-out 1.4s both;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 1.4s forwards;
 }
 
 .hero-actions .btn {
@@ -407,7 +418,8 @@ section:nth-child(even) {
   color: var(--text-light);
   max-width: 700px;
   margin: 1rem auto;
-  animation: fadeIn 1s ease-out 0.3s both;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 0.3s forwards;
 }
 
 .divider-heart {
@@ -687,6 +699,53 @@ section:nth-child(even) {
   margin: 1rem 0;
 }
 
+/* QR Code Section */
+.qr-section {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 4rem 0;
+}
+
+.qr-card {
+  background: var(--white);
+  padding: 3rem 2rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.qr-code-container {
+  display: inline-block;
+  padding: 30px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 3px solid var(--primary-color);
+  min-width: 360px;
+  min-height: 360px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.qr-code-container canvas {
+  display: block;
+  border-radius: 10px;
+  max-width: 100%;
+  height: auto;
+}
+
+.guest-info {
+  padding: 1.5rem;
+  background: var(--bg-light);
+  border-radius: 10px;
+  margin-top: 2rem;
+}
+
+.guest-info h5 {
+  color: var(--text-dark);
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
 /* Footer */
 .invitation-footer {
   background: var(--text-dark);
@@ -711,14 +770,7 @@ section:nth-child(even) {
   flex-wrap: wrap;
 }
 
-/* Animations */
-.animate-fade-in {
-  animation: fadeIn 1s ease-in;
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 1s ease-out;
-}
+/* Animation utilities - already defined at top, removed duplicate */
 
 @keyframes fadeIn {
   from {
@@ -937,7 +989,8 @@ section:nth-child(even) {
   border: none;
   border-radius: 15px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: fadeInUp 0.5s ease-out;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
 }
 
 .wishes-section .wish-card .card:hover {

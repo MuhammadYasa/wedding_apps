@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\helpers\Json;
 use yii\widgets\ActiveForm;
 use app\models\Rsvp;
 
@@ -77,29 +78,26 @@ $this->registerJs("
     <div class="hero-content">
         <div class="container text-center">
             <?php if ($guest): ?>
-                <p class="guest-greeting animate-fade-in">Kepada Yth.</p>
-                <h3 class="guest-name animate-fade-in"><?= Html::encode($guest->name) ?></h3>
-                <p class="guest-message animate-fade-in">Di Tempat</p>
+                <p class="guest-greeting">Kepada Yth.</p>
+                <h3 class="guest-name"><?= Html::encode($guest->name) ?></h3>
+                <p class="guest-message">Di Tempat</p>
                 <hr class="divider">
             <?php endif; ?>
             
-            <h1 class="couple-names animate-fade-in-up">
+            <h1 class="couple-names">
                 <?= Html::encode($invitation->bride_name) ?>
                 <span class="ampersand">&</span>
                 <?= Html::encode($invitation->groom_name) ?>
             </h1>
             
-            <p class="wedding-date animate-fade-in-up">
+            <p class="wedding-date">
                 <i class="bi bi-calendar-heart"></i>
                 <?= date('d F Y', $invitation->event_date) ?>
             </p>
             
-            <div class="hero-actions animate-fade-in-up">
+            <div class="hero-actions">
                 <a href="#rsvp" class="btn btn-primary btn-lg">
                     <i class="bi bi-envelope-heart"></i> Konfirmasi Kehadiran
-                </a>
-                <a href="<?= Url::to(['print', 'slug' => $invitation->slug]) ?>" class="btn btn-outline-light btn-lg" target="_blank">
-                    <i class="bi bi-printer"></i> Versi Cetak
                 </a>
             </div>
         </div>
@@ -272,6 +270,47 @@ $this->registerJs("
         </div>
     </div>
 </section>
+
+<!-- Personal QR Code Section (only for guests with token) -->
+<?php if ($guest): ?>
+<section class="qr-section" id="qr-code">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="qr-card">
+                    <div class="text-center">
+                        <h3 class="mb-3">Kode QR Undangan Anda</h3>
+                        <p class="text-muted mb-4">
+                            Simpan atau screenshot QR code di bawah ini.<br>
+                            Tunjukkan saat tiba di lokasi acara untuk konfirmasi kehadiran.
+                        </p>
+                        
+                        <!-- QR Code as Server-Generated Image -->
+                        <div class="qr-code-container">
+                            <img src="<?= Url::to(['invitation/qrcode', 'slug' => $invitation->slug, 'token' => $guest->token]) ?>" 
+                                 alt="QR Code for <?= Html::encode($guest->name) ?>"
+                                 style="max-width: 100%; height: auto;">
+                        </div>
+                        
+                        <div class="guest-info mt-4">
+                            <h5><?= Html::encode($guest->name) ?></h5>
+                            <?php if ($guest->email): ?>
+                                <p class="text-muted mb-0"><?= Html::encode($guest->email) ?></p>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="alert alert-info mt-4">
+                            <i class="bi bi-info-circle"></i>
+                            QR Code ini khusus untuk <strong><?= Html::encode($guest->name) ?></strong>.<br>
+                            Scan QR code saat check-in di acara pernikahan.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
 
 <!-- Map Section -->
 <?php if ($invitation->venue_lat && $invitation->venue_lng): ?>

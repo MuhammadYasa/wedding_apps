@@ -107,6 +107,11 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             border-color: #0d6efd;
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
         }
+        
+        /* Prevent content from being hidden behind fixed navbar */
+        body {
+            padding-top: 56px; /* Height of navbar */
+        }
     </style>
 </head>
 <body class="d-flex flex-column h-100">
@@ -134,19 +139,20 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             (Yii::$app->user->isGuest || Yii::$app->user->identity->isSuperUser()) ? ['label' => 'Contact', 'url' => ['/site/contact'], 'active' => $controller === 'site' && $action === 'contact'] : null,
             Yii::$app->user->isGuest ? (
                 ['label' => 'Login', 'url' => ['/auth/login'], 'active' => $controller === 'auth' && $action === 'login']
-            ) : (
-                // Super User - show horizontal menu items (no dropdown)
-                Yii::$app->user->identity->isSuperUser() ? null : null
-            ),
-            // Super User menu items - horizontal
+            ) : null,
+            // Super User menu - grouped in dropdown
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
-                ['label' => '<i class="bi bi-envelope-heart me-1"></i> Kelola Undangan', 'url' => ['/admin-invitation/index'], 'encode' => false, 'active' => $controller === 'admin-invitation'] : null,
-            (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
-                ['label' => '<i class="bi bi-person-gear me-1"></i> Kelola User', 'url' => ['/admin-user/index'], 'encode' => false, 'active' => $controller === 'admin-user'] : null,
-            (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
-                ['label' => '<i class="bi bi-people me-1"></i> Kelola Tamu', 'url' => ['/admin-guest/index'], 'encode' => false, 'active' => $controller === 'admin-guest'] : null,
-            (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
-                ['label' => '<i class="bi bi-images me-1"></i> Kelola Gallery', 'url' => ['/admin-gallery/index'], 'encode' => false, 'active' => $controller === 'admin-gallery'] : null,
+                [
+                    'label' => '<i class="bi bi-gear-fill me-1"></i> Admin',
+                    'encode' => false,
+                    'items' => [
+                        ['label' => '<i class="bi bi-envelope-heart me-1"></i> Kelola Undangan', 'url' => ['/admin-invitation/index'], 'encode' => false, 'active' => $controller === 'admin-invitation'],
+                        ['label' => '<i class="bi bi-person-gear me-1"></i> Kelola User', 'url' => ['/admin-user/index'], 'encode' => false, 'active' => $controller === 'admin-user'],
+                        ['label' => '<i class="bi bi-people me-1"></i> Kelola Tamu', 'url' => ['/admin-guest/index'], 'encode' => false, 'active' => $controller === 'admin-guest'],
+                        ['label' => '<i class="bi bi-images me-1"></i> Kelola Gallery', 'url' => ['/admin-gallery/index'], 'encode' => false, 'active' => $controller === 'admin-gallery'],
+                        ['label' => '<i class="bi bi-calendar-check me-1"></i> Kelola RSVP', 'url' => ['/admin-rsvp/index'], 'encode' => false, 'active' => $controller === 'admin-rsvp'],
+                    ]
+                ] : null,
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
                 ['label' => '<i class="bi bi-bar-chart me-1"></i> Analytics', 'url' => ['/admin-analytics/index'], 'encode' => false, 'active' => $controller === 'admin-analytics'] : null,
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
@@ -155,8 +161,6 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 ['label' => '<i class="bi bi-qr-code-scan me-1"></i> Check-In', 'url' => ['/check-in/index'], 'encode' => false, 'active' => $controller === 'check-in'] : null,
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
                 ['label' => '<i class="bi bi-journal-heart me-1"></i> Ucapan', 'url' => ['/admin-wish/index'], 'encode' => false, 'active' => $controller === 'admin-wish'] : null,
-            (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
-                ['label' => '<i class="bi bi-calendar-check me-1"></i> Kelola RSVP', 'url' => ['/admin-rsvp/index'], 'encode' => false, 'active' => $controller === 'admin-rsvp'] : null,
             (!Yii::$app->user->isGuest && Yii::$app->user->identity->isSuperUser()) ? 
                 ['label' => '<i class="bi bi-box-arrow-right me-1"></i> Logout', 
                  'url' => ['/auth/logout'],

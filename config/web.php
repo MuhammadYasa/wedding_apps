@@ -151,10 +151,18 @@ $config = [
                 'admin-gallery/<action:\w+>/<id:\d+>' => 'admin-gallery/<action>',
                 
                 // Invitation friendly URLs
+                'admin-gallery/<action:\w+>' => 'admin-gallery/<action>',
+                'admin-gallery/<action:\w+>/<id:\d+>' => 'admin-gallery/<action>',
+                
+                // Invitation friendly URLs
+                'invitation/<slug:[\w\-]+>/qrcode/<token:[\w\-]+>' => 'invitation/qrcode',
+                'invitation/<slug:[\w\-]+>/print' => 'invitation/print',
+                'invitation/<slug:[\w\-]+>/thankyou' => 'invitation/thankyou',
                 'invitation/<slug:[\w\-]+>/send-message' => 'invitation/send-message',
                 'invitation/<slug:[\w\-]+>/get-messages' => 'invitation/get-messages',
                 'invitation/<slug:[\w\-]+>/rsvp' => 'invitation/rsvp',
                 'invitation/<slug:[\w\-]+>' => 'invitation/view',
+
                 
                 // Default rules
                 '<controller:\w+>/<id:\d+>' => '<controller>/view',

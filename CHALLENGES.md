@@ -1,6 +1,7 @@
 # 🎯 Development Journey: Challenges & Solutions
 
 ## Project Overview
+
 **Wedding Invitation App** adalah aplikasi undangan pernikahan digital full-stack yang dibangun dengan Yii2 Framework dalam waktu 14 hari sebagai portfolio project untuk mendemonstrasikan kemampuan backend development, database design, dan system architecture.
 
 ---
@@ -10,10 +11,12 @@
 ### 1. **Multi-Tenancy dengan Role-Based Access Control (RBAC)**
 
 **Challenge:**
+
 - Bagaimana membuat sistem dimana satu admin (super user) bisa mengelola banyak client, dan setiap client hanya bisa melihat/mengelola undangannya sendiri?
 - Perlu isolasi data yang ketat antara client, tapi tetap memberikan full access untuk super user
 
 **Solution:**
+
 - Implementasi custom RBAC dengan 2 role: `super_user` dan `client`
 - Setiap undangan memiliki `user_id` (owner)
 - Setiap query di controller client user di-filter dengan:
@@ -31,11 +34,13 @@
 ### 2. **Personalized Guest Links & Token System**
 
 **Challenge:**
+
 - Setiap tamu perlu link unik yang bisa track siapa yang membuka undangan
 - WhatsApp sharing harus pre-fill nama tamu tanpa perlu login
 - Token harus secure tapi tetap user-friendly
 
 **Solution:**
+
 - Generate unique token per guest (32 char random string):
   ```php
   $guest->token = Yii::$app->security->generateRandomString(32);
@@ -51,11 +56,13 @@
 ### 3. **Email System dengan Batch Processing**
 
 **Challenge:**
+
 - Kirim ratusan email undangan tanpa timeout
 - Hindari rate limiting dari email provider
 - Template HTML yang responsive di semua email client
 
 **Solution:**
+
 - Gunakan Symfony Mailer (lebih modern dari SwiftMailer)
 - Batch processing dengan delay 0.1 detik antar email:
   ```php
@@ -74,20 +81,22 @@
 ### 4. **QR Code Check-In System dengan Real-Time Scanner**
 
 **Challenge:**
+
 - Butuh QR code unik per guest untuk check-in di venue
 - Scanner harus bisa akses camera di mobile browser
 - Real-time detection tanpa perlu upload foto
 
 **Solution:**
+
 - Generate QR dengan `endroid/qr-code` library (300x300px, high error correction)
 - HTML5 `getUserMedia` API untuk camera access
 - jsQR library untuk real-time detection di canvas:
   ```javascript
   function tick() {
-      canvas.drawImage(video, 0, 0);
-      let code = jsQR(imageData.data, width, height);
-      if (code) processQrCode(code.data);
-      requestAnimationFrame(tick);
+    canvas.drawImage(video, 0, 0);
+    let code = jsQR(imageData.data, width, height);
+    if (code) processQrCode(code.data);
+    requestAnimationFrame(tick);
   }
   ```
 - Fallback: manual QR code entry
@@ -100,11 +109,13 @@
 ### 5. **Performance Optimization untuk Large Dataset**
 
 **Challenge:**
+
 - Query lambat saat RSVP >500 entries
 - N+1 query problem di gallery & guests
 - Dashboard load time >3 detik
 
 **Solution:**
+
 - Database indexing pada foreign keys dan frequently queried columns
 - Eager loading dengan `with()`:
   ```php
@@ -122,11 +133,13 @@
 ### 6. **Security Hardening**
 
 **Challenge:**
+
 - Protect dari CSRF, XSS, SQL injection
 - Rate limiting untuk prevent spam RSVP
 - Secure file upload (prevent shell upload)
 
 **Solution:**
+
 - CSRF token di semua forms (Yii2 built-in)
 - Custom RateLimiter filter:
   ```php
@@ -148,11 +161,13 @@
 ### 7. **Theme System yang Flexible**
 
 **Challenge:**
+
 - Client ingin bisa ganti theme tanpa coding
 - CSS tidak boleh conflict antar theme
 - Preview theme sebelum apply
 
 **Solution:**
+
 - CSS modular per theme: `themes/{theme_name}.css`
 - Dynamic CSS loading berdasarkan `invitation.theme`:
   ```php
@@ -163,8 +178,8 @@
 - CSS variables untuk easy customization:
   ```css
   :root {
-      --primary-color: #d4a574;
-      --secondary-color: #8b7355;
+    --primary-color: #d4a574;
+    --secondary-color: #8b7355;
   }
   ```
 
@@ -175,11 +190,13 @@
 ### 8. **CI/CD Pipeline dengan GitHub Actions**
 
 **Challenge:**
+
 - Setup automated testing untuk Yii2 app
 - MySQL service untuk integration tests
 - Prevent broken code di production
 
 **Solution:**
+
 - GitHub Actions workflow dengan:
   - MySQL service container
   - PHP 8.0 setup dengan extensions (gd, pdo_mysql, intl)
@@ -194,17 +211,17 @@
 
 ## 📊 Key Metrics & Achievements
 
-| Metric | Value |
-|--------|-------|
-| Development Time | 14 hari |
-| Total Commits | 20+ commits |
-| Lines of Code | ~8,000 LOC |
-| Database Tables | 8 tables (normalized) |
-| Test Coverage | ~60% (unit + functional) |
-| Performance | <1s page load |
-| Mobile Responsive | 100% |
-| Security Score | A+ (no vulnerabilities) |
-| Features | 14 core + 10 bonus |
+| Metric            | Value                    |
+| ----------------- | ------------------------ |
+| Development Time  | 14 hari                  |
+| Total Commits     | 20+ commits              |
+| Lines of Code     | ~8,000 LOC               |
+| Database Tables   | 8 tables (normalized)    |
+| Test Coverage     | ~60% (unit + functional) |
+| Performance       | <1s page load            |
+| Mobile Responsive | 100%                     |
+| Security Score    | A+ (no vulnerabilities)  |
+| Features          | 14 core + 10 bonus       |
 
 ---
 
@@ -233,6 +250,7 @@
 ## 💡 Why This Project Matters
 
 Project ini mendemonstrasikan:
+
 - ✅ **Full-stack capability** - Backend, frontend, database, deployment
 - ✅ **System design thinking** - RBAC, multi-tenancy, security
 - ✅ **Problem solving** - Real-world challenges dengan practical solutions
