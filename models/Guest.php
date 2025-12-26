@@ -21,9 +21,13 @@ use yii\helpers\Url;
  * @property string $token
  * @property int $token_created_at
  * @property int $viewed_at
+ * @property string $qr_code
+ * @property int $checked_in_at
+ * @property int $checked_in_by
  * @property int $created_at
  *
  * @property Invitation $invitation
+ * @property User $checkedInBy
  */
 class Guest extends ActiveRecord
 {
@@ -63,14 +67,16 @@ class Guest extends ActiveRecord
     {
         return [
             [['invitation_id', 'name', 'phone'], 'required', 'message' => '{attribute} wajib diisi'],
-            [['invitation_id', 'token_created_at', 'viewed_at', 'created_at'], 'integer'],
+            [['invitation_id', 'token_created_at', 'viewed_at', 'checked_in_at', 'checked_in_by', 'created_at'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['email'], 'string', 'max' => 191],
             ['email', 'email'],
             [['phone', 'whatsapp'], 'string', 'max' => 50],
-            [['slug', 'token'], 'string', 'max' => 128],
+            [['slug', 'token', 'qr_code'], 'string', 'max' => 255],
             ['token', 'unique'],
+            ['qr_code', 'unique'],
             [['invitation_id'], 'exist', 'skipOnError' => true, 'targetClass' => Invitation::class, 'targetAttribute' => ['invitation_id' => 'id']],
+            [['checked_in_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['checked_in_by' => 'id']],
         ];
     }
 
@@ -90,6 +96,9 @@ class Guest extends ActiveRecord
             'token' => 'Token',
             'token_created_at' => 'Token Created At',
             'viewed_at' => 'Viewed At',
+            'qr_code' => 'QR Code',
+            'checked_in_at' => 'Checked In At',
+            'checked_in_by' => 'Checked In By',
             'created_at' => 'Created At',
         ];
     }
@@ -102,6 +111,16 @@ class Guest extends ActiveRecord
     public function getInvitation()
     {
         return $this->hasOne(Invitation::class, ['id' => 'invitation_id']);
+    }
+    
+    /**
+     * Gets query for [[User]] who checked in the guest.
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCheckedInBy()
+    {
+        return $this->hasOne(User::class, ['id' => 'checked_in_by']);
     }
 
     /**
