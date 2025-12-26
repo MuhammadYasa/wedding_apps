@@ -19,7 +19,11 @@ Aplikasi undangan pernikahan digital berbasis Yii2 Framework dengan Role-Based A
 - 📍 **Google Maps Integration** - Lokasi acara dengan peta
 - 💌 **Personalized Guest Links** - Link khusus untuk setiap tamu via token
 - 📱 **WhatsApp Distribution** - Link WhatsApp siap copy-paste untuk manual sharing
-- 🎭 **Multiple Themes** - Template undangan yang dapat diganti
+- 🎭 **Multiple Themes** - 4 template undangan (default, elegant, rustic, modern)
+- 💬 **Live Chat** - Real-time chat antar tamu undangan
+- 📖 **Digital Guest Book** - Sistem ucapan & doa dengan moderasi
+- 🖨️ **Printable View** - Versi cetak undangan dengan QR code
+- 🔗 **SEO Optimized** - Meta tags & Open Graph untuk social sharing
 
 ### Authentication & Authorization
 
@@ -47,6 +51,9 @@ Aplikasi undangan pernikahan digital berbasis Yii2 Framework dengan Role-Based A
 - 📊 **Export RSVP to CSV** - Export data RSVP untuk analisis
 - 📲 **WhatsApp Link Generator** - Generate pre-filled WhatsApp links (manual copy-paste)
 - ⚙️ **Invitation Customization** - Edit detail pernikahan, nama pasangan, tanggal acara
+- 📧 **Email Management** - Kirim undangan via email (manual/batch)
+- 📖 **Wishes Moderation** - Kelola ucapan dari tamu (approve/reject)
+- 📊 **Analytics Dashboard** - Statistik RSVP, guests, dan export Excel
 
 ### Status Management
 
@@ -55,15 +62,52 @@ Aplikasi undangan pernikahan digital berbasis Yii2 Framework dengan Role-Based A
 - 🛡️ **Super User Exemption** - Status tidak berlaku untuk super user
 - 🎚️ **Toggle Control** - Toggle status dengan satu klik di admin dashboard
 
+### Advanced Features
+
+- 📧 **Email System** - Symfony Mailer dengan template HTML/Text
+  - Invitation emails dengan personalisasi
+  - RSVP confirmation auto-send
+  - Batch email dengan delay
+  - Email reminders
+- 🎯 **QR Code Check-In** - Guest check-in system dengan QR scanner
+  - Generate QR codes untuk setiap guest
+  - HTML5 camera scanner (real-time detection)
+  - Manual QR code entry fallback
+  - Check-in/check-out tracking
+  - Sound feedback untuk better UX
+- 📖 **Digital Guest Book** - Sistem ucapan dengan moderasi
+  - Public submission form
+  - Admin moderation panel
+  - Bulk approve/delete
+  - Display di invitation page
+- 📊 **Analytics & Export** - Dashboard analitik lengkap
+  - RSVP statistics dengan charts
+  - Guest tracking & filtering
+  - Excel export untuk data analysis
+  - CSV export untuk RSVP data
+- 🔒 **Security Hardening**
+  - CSRF protection
+  - Rate limiting untuk forms
+  - Security headers (CSP, X-Frame-Options)
+  - Input validation & sanitization
+- ⚡ **Performance Optimization**
+  - Database indexing
+  - Model eager loading
+  - Query caching
+  - Optimized asset loading
+
 ## 🛠️ Technology Stack
 
 - **Backend**: Yii2 Basic Application Template
 - **Database**: MySQL / MariaDB
 - **Frontend**: Bootstrap 5 + Bootstrap Icons + Vanilla JavaScript
 - **Authentication**: yii2-authclient (Google OAuth 2.0)
-- **Email**: SwiftMailer (Yii2 integrated)
+- **Email**: Symfony Mailer 2.0
+- **QR Code**: endroid/qr-code 5.1
+- **Export**: PHPSpreadsheet untuk Excel
 - **Server**: PHP 7.4+ / 8.0+
 - **RBAC**: Custom role-based access control implementation
+- **CI/CD**: GitHub Actions
 
 ## 📋 Requirements
 
@@ -71,6 +115,8 @@ Aplikasi undangan pernikahan digital berbasis Yii2 Framework dengan Role-Based A
 - MySQL/MariaDB >= 5.7
 - Composer
 - Web server (Apache/Nginx) atau PHP built-in server untuk development
+- BCMath PHP Extension (untuk QR code)
+- GD atau Imagick PHP Extension (untuk image processing)
 
 ## 🚀 Installation
 

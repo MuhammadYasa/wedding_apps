@@ -15,6 +15,29 @@ use app\models\Rsvp;
 
 $this->title = $invitation->title;
 
+// SEO Meta Tags
+$this->registerMetaTag(['name' => 'description', 'content' => "Undangan pernikahan {$invitation->bride_name} & {$invitation->groom_name} - {$invitation->title}. " . date('d F Y', $invitation->event_date) . " di {$invitation->venue}"]);
+$this->registerMetaTag(['name' => 'keywords', 'content' => "undangan pernikahan, {$invitation->bride_name}, {$invitation->groom_name}, wedding invitation, " . date('Y', $invitation->event_date)]);
+
+// Open Graph Meta Tags for Social Sharing
+$invitationUrl = Url::to(['invitation/view', 'slug' => $invitation->slug], true);
+$ogImage = !empty($invitation->galleries) 
+    ? Url::to('@web/uploads/galleries/' . $invitation->galleries[0]->filename, true)
+    : Url::to('@web/images/default-wedding.jpg', true);
+
+$this->registerMetaTag(['property' => 'og:title', 'content' => $invitation->title]);
+$this->registerMetaTag(['property' => 'og:description', 'content' => "Undangan pernikahan {$invitation->bride_name} & {$invitation->groom_name} - " . date('d F Y', $invitation->event_date)]);
+$this->registerMetaTag(['property' => 'og:image', 'content' => $ogImage]);
+$this->registerMetaTag(['property' => 'og:url', 'content' => $invitationUrl]);
+$this->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
+$this->registerMetaTag(['property' => 'og:site_name', 'content' => 'Wedding Invitation']);
+
+// Twitter Card Meta Tags
+$this->registerMetaTag(['name' => 'twitter:card', 'content' => 'summary_large_image']);
+$this->registerMetaTag(['name' => 'twitter:title', 'content' => $invitation->title]);
+$this->registerMetaTag(['name' => 'twitter:description', 'content' => "Undangan pernikahan {$invitation->bride_name} & {$invitation->groom_name}"]);
+$this->registerMetaTag(['name' => 'twitter:image', 'content' => $ogImage]);
+
 // Register base CSS
 $this->registerCssFile('@web/css/invitation.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 
@@ -74,6 +97,9 @@ $this->registerJs("
             <div class="hero-actions animate-fade-in-up">
                 <a href="#rsvp" class="btn btn-primary btn-lg">
                     <i class="bi bi-envelope-heart"></i> Konfirmasi Kehadiran
+                </a>
+                <a href="<?= Url::to(['print', 'slug' => $invitation->slug]) ?>" class="btn btn-outline-light btn-lg" target="_blank">
+                    <i class="bi bi-printer"></i> Versi Cetak
                 </a>
             </div>
         </div>

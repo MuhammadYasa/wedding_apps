@@ -323,6 +323,28 @@ class InvitationController extends Controller
     }
 
     /**
+     * Display printable version of invitation
+     * 
+     * @param string $slug Invitation slug
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionPrint($slug)
+    {
+        $invitation = $this->findInvitationBySlug($slug);
+
+        if (!$invitation->is_active) {
+            throw new NotFoundHttpException('Undangan tidak ditemukan atau sudah tidak aktif.');
+        }
+
+        $this->layout = 'print'; // Use special print layout (minimal)
+
+        return $this->render('print', [
+            'invitation' => $invitation,
+        ]);
+    }
+
+    /**
      * Find invitation by slug
      * 
      * @param string $slug
