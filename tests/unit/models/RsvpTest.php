@@ -19,9 +19,10 @@ class RsvpTest extends \Codeception\Test\Unit
         verify($rsvp->validate())->false();
         
         // Required fields
-        verify($rsvp->hasErrors('guest_id'))->true();
         verify($rsvp->hasErrors('invitation_id'))->true();
-        verify($rsvp->hasErrors('will_attend'))->true();
+        verify($rsvp->hasErrors('name'))->true();
+        verify($rsvp->hasErrors('email'))->true();
+        verify($rsvp->hasErrors('attendance'))->true();
     }
     
     /**
@@ -30,16 +31,18 @@ class RsvpTest extends \Codeception\Test\Unit
     public function testValidRsvpCreation()
     {
         $rsvp = new Rsvp([
-            'guest_id' => 1,
             'invitation_id' => 1,
-            'will_attend' => 1,
-            'number_of_guests' => 2,
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'phone' => '08123456789',
+            'attendance' => Rsvp::ATTENDANCE_ATTENDING,
+            'guests_count' => 2,
             'message' => 'Looking forward to celebrate with you!',
         ]);
         
         verify($rsvp->validate())->true();
-        verify($rsvp->will_attend)->equals(1);
-        verify($rsvp->number_of_guests)->equals(2);
+        verify($rsvp->attendance)->equals(Rsvp::ATTENDANCE_ATTENDING);
+        verify($rsvp->guests_count)->equals(2);
     }
     
     /**
@@ -48,33 +51,16 @@ class RsvpTest extends \Codeception\Test\Unit
     public function testRsvpDecline()
     {
         $rsvp = new Rsvp([
-            'guest_id' => 1,
             'invitation_id' => 1,
-            'will_attend' => 0,
+            'name' => 'Jane Doe',
+            'email' => 'jane@example.com',
+            'phone' => '08123456789',
+            'attendance' => Rsvp::ATTENDANCE_NOT_ATTENDING,
             'message' => 'Unfortunately cannot make it',
         ]);
         
         verify($rsvp->validate())->true();
-        verify($rsvp->will_attend)->equals(0);
-    }
-    
-    /**
-     * Test RSVP belongs to guest
-     */
-    public function testRsvpBelongsToGuest()
-    {
-        $guest = Guest::findOne(1);
-        
-        if ($guest) {
-            $rsvp = new Rsvp([
-                'guest_id' => $guest->id,
-                'invitation_id' => 1,
-                'will_attend' => 1,
-            ]);
-            
-            verify($rsvp->validate())->true();
-            verify($rsvp->guest_id)->equals($guest->id);
-        }
+        verify($rsvp->attendance)->equals(Rsvp::ATTENDANCE_NOT_ATTENDING);
     }
     
     /**
@@ -86,9 +72,34 @@ class RsvpTest extends \Codeception\Test\Unit
         
         if ($invitation) {
             $rsvp = new Rsvp([
-                'guest_id' => 1,
                 'invitation_id' => $invitation->id,
-                'will_attend' => 1,
+                'name' => 'Test Guest',
+                'email' => 'testguest@example.com',
+                'phone' => '08123456789',
+                'attendance' => Rsvp::ATTENDANCE_ATTENDING,
+                'guests_count' => 1,
+            ]);
+            
+            verify($rsvp->validate())->true();
+            verify($rsvp->invitation_id)->equals($invitation->id);
+        }
+    }
+    
+    /**
+     * Test RSVP belongs to invitation (duplicate removed)
+     */
+    public function testRsvpBelongsToInvitationDuplicate()
+    {
+        $invitation = Invitation::findOne(1);
+        
+        if ($invitation) {
+            $rsvp = new Rsvp([
+                'invitation_id' => $invitation->id,
+                'name' => 'Another Guest',
+                'email' => 'anotherguest@example.com',
+                'phone' => '08123456790',
+                'attendance' => Rsvp::ATTENDANCE_ATTENDING,
+                'guests_count' => 1,
             ]);
             
             verify($rsvp->validate())->true();
@@ -102,17 +113,19 @@ class RsvpTest extends \Codeception\Test\Unit
     public function testNumberOfGuestsValidation()
     {
         $rsvp = new Rsvp([
-            'guest_id' => 1,
             'invitation_id' => 1,
-            'will_attend' => 1,
-            'number_of_guests' => -1, // Invalid
+            'name' => 'Test Guest',
+            'email' => 'testvalidation@example.com',
+            'phone' => '08123456789',
+            'attendance' => Rsvp::ATTENDANCE_ATTENDING,
+            'guests_count' => 0, // Invalid (min 1)
         ]);
         
         verify($rsvp->validate())->false();
-        verify($rsvp->hasErrors('number_of_guests'))->true();
+        verify($rsvp->hasErrors('guests_count'))->true();
         
         // Valid number
-        $rsvp->number_of_guests = 3;
+        $rsvp->guests_count = 2;
         verify($rsvp->validate())->true();
     }
 }

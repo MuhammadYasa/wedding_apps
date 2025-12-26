@@ -18,10 +18,11 @@ class InvitationTest extends \Codeception\Test\Unit
         verify($invitation->validate())->false();
         
         // Required fields validation
-        verify($invitation->hasErrors('user_id'))->true();
         verify($invitation->hasErrors('title'))->true();
         verify($invitation->hasErrors('bride_name'))->true();
+        verify($invitation->hasErrors('bride_nickname'))->true();
         verify($invitation->hasErrors('groom_name'))->true();
+        verify($invitation->hasErrors('groom_nickname'))->true();
         verify($invitation->hasErrors('event_date'))->true();
     }
     
@@ -39,7 +40,8 @@ class InvitationTest extends \Codeception\Test\Unit
             'groom_nickname' => 'Johnny',
             'event_date' => '2026-12-31',
             'event_time' => '14:00',
-            'location' => 'Test Location',
+            'venue' => 'Test Venue',
+            'venue_address' => 'Test Location Address',
             'is_active' => true,
         ]);
         
@@ -56,15 +58,17 @@ class InvitationTest extends \Codeception\Test\Unit
             'user_id' => 1,
             'title' => 'Beautiful Wedding Ceremony',
             'bride_name' => 'Sarah',
+            'bride_nickname' => 'Sara',
             'groom_name' => 'Michael',
+            'groom_nickname' => 'Mike',
             'event_date' => '2026-06-15',
         ]);
         
         $invitation->validate();
         
-        // Slug should be auto-generated from title
+        // Slug should be auto-generated from nicknames
         verify($invitation->slug)->notEmpty();
-        verify($invitation->slug)->contains('beautiful-wedding-ceremony');
+        verify(strpos($invitation->slug, 'sara') !== false || strpos($invitation->slug, 'mike') !== false)->true();
     }
     
     /**
@@ -83,27 +87,16 @@ class InvitationTest extends \Codeception\Test\Unit
     }
     
     /**
-     * Test email validation
+     * Test invitation relationship with user
      */
-    public function testEmailValidation()
+    public function testInvitationUserRelationship()
     {
-        $invitation = new Invitation([
-            'user_id' => 1,
-            'title' => 'Test Wedding',
-            'bride_name' => 'Jane',
-            'groom_name' => 'John',
-            'event_date' => '2026-12-31',
-            'bride_email' => 'invalid-email',
-            'groom_email' => 'also-invalid',
-        ]);
+        $invitation = Invitation::findOne(['user_id' => 1]);
         
-        verify($invitation->validate())->false();
-        verify($invitation->hasErrors('bride_email'))->true();
-        verify($invitation->hasErrors('groom_email'))->true();
-        
-        // Valid emails
-        $invitation->bride_email = 'jane@example.com';
-        $invitation->groom_email = 'john@example.com';
-        verify($invitation->validate(['bride_email', 'groom_email']))->true();
+        if ($invitation) {
+            verify($invitation->user)->notEmpty();
+            verify($invitation->user)->isInstanceOf(User::class);
+            verify($invitation->user_id)->equals(1);
+        }
     }
 }

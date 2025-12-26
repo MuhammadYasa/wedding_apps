@@ -20,6 +20,7 @@ class GuestTest extends \Codeception\Test\Unit
         // Required fields
         verify($guest->hasErrors('invitation_id'))->true();
         verify($guest->hasErrors('name'))->true();
+        verify($guest->hasErrors('phone'))->true();
     }
     
     /**
@@ -46,6 +47,7 @@ class GuestTest extends \Codeception\Test\Unit
         $guest = new Guest([
             'invitation_id' => 1,
             'name' => 'Jane Doe',
+            'phone' => '081234567890',
             'email' => 'invalid-email',
         ]);
         
@@ -68,6 +70,7 @@ class GuestTest extends \Codeception\Test\Unit
             $guest = new Guest([
                 'invitation_id' => $invitation->id,
                 'name' => 'Test Guest',
+                'phone' => '081234567890',
             ]);
             
             verify($guest->validate())->true();
@@ -76,19 +79,22 @@ class GuestTest extends \Codeception\Test\Unit
     }
     
     /**
-     * Test token generation
+     * Test token generation on save
      */
     public function testTokenGeneration()
     {
         $guest = new Guest([
             'invitation_id' => 1,
-            'name' => 'Test Guest',
+            'name' => 'Token Test Guest',
+            'phone' => '081234567899',
         ]);
         
-        $guest->validate();
+        // Token should be empty before save
+        verify($guest->token)->null();
         
-        // Token should be auto-generated
+        // After calling beforeSave (simulating save), token should be generated
+        $guest->beforeSave(true);
         verify($guest->token)->notEmpty();
-        verify(strlen($guest->token))->greaterOrEquals(32);
+        verify(strlen($guest->token))->equals(32);
     }
 }
